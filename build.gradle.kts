@@ -4,6 +4,14 @@ plugins {
     kotlin("jvm") version "1.4.21"
 }
 
+//sourceSets {
+//    main {
+//        resources {
+//            srcDirs("src/main/resources")
+//        }
+//    }
+//}
+
 group = "me.user"
 version = "1.0-SNAPSHOT"
 
@@ -21,7 +29,7 @@ dependencies {
     implementation("net.dv8tion:JDA:4.2.0_240")
 
     implementation("io.github.microutils:kotlin-logging-jvm:2.0.6")
-    implementation("org.slf4j:slf4j-simple:2.0.0-alpha1")
+    implementation("ch.qos.logback:logback-classic:1.3.0-alpha5")
     implementation("org.slf4j:slf4j-api:2.0.0-alpha1")
 
     implementation("org.jetbrains.exposed:exposed-core:0.29.1")

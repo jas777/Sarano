@@ -6,9 +6,6 @@ import me.grison.jtoml.impl.Toml
 import mu.KLogger
 import mu.toKLogger
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.JDABuilder
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.sharding.ShardManager
@@ -16,7 +13,6 @@ import org.slf4j.LoggerFactory
 import java.awt.Color
 import java.io.File
 import java.io.IOException
-import java.lang.NumberFormatException
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
@@ -25,12 +21,12 @@ fun main(args: Array<String>) {
         println("Please supply the config path!")
         exitProcess(1)
     } else {
-        Sarano(args[0])
+        Sarano(args[0], args.size > 1)
     }
 
 }
 
-class Sarano constructor(config: String) {
+class Sarano constructor(config: String, val debug: Boolean) {
 
     var configuration: Configuration
 
@@ -43,6 +39,11 @@ class Sarano constructor(config: String) {
         // Fetching configuration
 
         val configFile = File(config)
+
+        if (debug) {
+            logger.debug { "Running in debug mode..." }
+            logger.debug { "Started config initialization (Path $config)" }
+        }
 
         if (!configFile.exists()) {
 
