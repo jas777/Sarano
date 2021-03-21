@@ -1,6 +1,5 @@
 package com.sarano.main
 
-import com.sarano.command.ACommand
 import com.sarano.command.CommandHandler
 import com.sarano.config.Configuration
 import me.grison.jtoml.impl.Toml
@@ -73,7 +72,7 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
         // Command registration (!DEV ONLY, USE MODULES!)
 
-        commandHandler.registerCommands(ACommand(this))
+        // commandHandler.registerCommands(ACommand(this))
 
         // Shard manager setup
 
