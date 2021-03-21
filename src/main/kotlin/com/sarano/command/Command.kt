@@ -11,10 +11,14 @@ abstract class Command(protected val sarano: Sarano) {
     abstract val name: String
     abstract val description: String
 
-    abstract val ownerOnly: Boolean
+    open val aliases: Array<String> = emptyArray()
 
-    abstract val cooldown: Int
+    open val child: Array<Command> = emptyArray()
 
-    abstract fun execute(sender: Member, channel: TextChannel, message: Message, guild: Guild)
+    open val ownerOnly: Boolean = false
+
+    open val cooldown: Int = 3
+
+    abstract fun execute(sender: Member, channel: TextChannel, message: Message, guild: Guild, args: List<String>)
 
 }

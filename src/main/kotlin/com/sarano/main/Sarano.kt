@@ -1,5 +1,6 @@
 package com.sarano.main
 
+import com.sarano.command.ACommand
 import com.sarano.command.CommandHandler
 import com.sarano.config.Configuration
 import me.grison.jtoml.impl.Toml
@@ -34,16 +35,16 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
     val client: ShardManager
 
+    val commandHandler: CommandHandler = CommandHandler(this)
+
     init {
 
         // Fetching configuration
 
         val configFile = File(config)
 
-        if (debug) {
-            logger.debug { "Running in debug mode..." }
-            logger.debug { "Started config initialization (Path $config)" }
-        }
+        logger.debug { "Running in debug mode..." }
+        logger.debug { "Started config initialization (Path $config)" }
 
         if (!configFile.exists()) {
 
@@ -70,6 +71,10 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
         }
 
+        // Command registration (!DEV ONLY, USE MODULES!)
+
+        commandHandler.registerCommands(ACommand(this))
+
         // Shard manager setup
 
         client = DefaultShardManagerBuilder
@@ -79,7 +84,7 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
         // Event listeners registration
 
-        client.addEventListener(CommandHandler(this))
+        client.addEventListener(commandHandler)
 
     }
 
