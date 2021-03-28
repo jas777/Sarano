@@ -1,7 +1,10 @@
 package com.sarano.main
 
 import com.sarano.command.CommandHandler
+import com.sarano.command.TestCommand
 import com.sarano.config.Configuration
+import com.sarano.module.Module
+import com.sarano.modules.dev.DevModule
 import me.grison.jtoml.impl.Toml
 import mu.KLogger
 import mu.toKLogger
@@ -13,6 +16,8 @@ import org.slf4j.LoggerFactory
 import java.awt.Color
 import java.io.File
 import java.io.IOException
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
@@ -21,7 +26,7 @@ fun main(args: Array<String>) {
         println("Please supply the config path!")
         exitProcess(1)
     } else {
-        Sarano(args[0], args.size > 1)
+        Sarano(args[0], args.size > 1).start()
     }
 
 }
@@ -32,9 +37,11 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
     val logger: KLogger = LoggerFactory.getLogger("main").toKLogger()
 
-    val client: ShardManager
+    lateinit var client: ShardManager
 
     val commandHandler: CommandHandler = CommandHandler(this)
+
+    val modules: MutableList<Module> = ArrayList()
 
     init {
 
@@ -70,9 +77,23 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
         }
 
+        // Module registration
+
+        modules.addAll(
+            listOf(DevModule(this))
+        )
+
         // Command registration (!DEV ONLY, USE MODULES!)
 
-        // commandHandler.registerCommands(ACommand(this))
+        commandHandler.registerCommands(TestCommand(this))
+
+    }
+
+    fun start() {
+
+        // Module init
+
+        modules.forEach { it.setup() }
 
         // Shard manager setup
 

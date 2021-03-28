@@ -4,13 +4,13 @@ plugins {
     kotlin("jvm") version "1.4.21"
 }
 
-//sourceSets {
-//    main {
-//        resources {
-//            srcDirs("src/main/resources")
-//        }
-//    }
-//}
+sourceSets {
+    main {
+        resources {
+            srcDirs("src/main/resources")
+        }
+    }
+}
 
 group = "me.user"
 version = "1.0-SNAPSHOT"
@@ -18,6 +18,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     jcenter()
+    maven { setUrl("https://jitpack.io") }
 }
 
 dependencies {
@@ -26,7 +27,10 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
 
-    implementation("net.dv8tion:JDA:4.2.0_240")
+    implementation("org.jetbrains.kotlin:kotlin-scripting-jsr223:1.4.10")
+
+    // implementation("net.dv8tion:JDA:4.2.0_240")
+    implementation("com.github.DV8FromTheWorld:JDA:feature~slash-commands")
 
     implementation("io.github.microutils:kotlin-logging-jvm:2.0.6")
     implementation("ch.qos.logback:logback-classic:1.3.0-alpha5")
