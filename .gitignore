@@ -5,3 +5,4 @@ gradle
 gradlew.bat
 gradlew
 config.toml
+logFile.log
