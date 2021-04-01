@@ -30,7 +30,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-scripting-jsr223:1.4.10")
 
     // implementation("net.dv8tion:JDA:4.2.0_240")
-    implementation("com.github.DV8FromTheWorld:JDA:feature~slash-commands")
+    implementation("com.github.DV8FromTheWorld:JDA:40f94ae")
 
     implementation("io.github.microutils:kotlin-logging-jvm:2.0.6")
     implementation("ch.qos.logback:logback-classic:1.3.0-alpha5")

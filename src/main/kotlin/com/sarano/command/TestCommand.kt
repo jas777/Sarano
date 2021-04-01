@@ -19,29 +19,25 @@ class TestCommand(sarano: Sarano) : Command(sarano) {
     override val canSlash: Boolean = true
 
     override val arguments: Array<CommandArgument> = arrayOf(
-        CommandArgument("number", "testing parser 1", OptionType.INTEGER, false),
+        CommandArgument("number", "testing parser 1", OptionType.INTEGER, false,
+            choices = hashMapOf(Pair("One", 1), Pair("Two", 2), Pair("Triple seven", 777))
+        ),
         CommandArgument("optional", "testing parser 2", OptionType.INTEGER, true),
-        CommandArgument("text", "testing parser 3", OptionType.STRING, false, 2)
+        CommandArgument("text", "testing parser 3", OptionType.STRING, false, 2,
+            choices = hashMapOf(Pair("1", "One"), Pair("2", "Two"), Pair("777", "Triple seven"))
+        )
     )
 
-    override fun execute(sender: Member, channel: TextChannel, message: Message, guild: Guild, args: List<String>) {
+    override fun execute(ctx: CommandContext) {
 
-        val arguments = Arguments(this, args)
-
-        channel.sendMessage("" + arguments.parsedArguments["number"]?.result?.get() as Int).queue()
-
-        if (arguments.parsedArguments.containsKey("optional")) {
-            channel.sendMessage("" + arguments.parsedArguments["optional"]?.result?.get() as Int).queue()
-        }
-
-        channel.sendMessage("" + (arguments.parsedArguments["text"]?.result?.get() as List<*>)
-            .joinToString(" ")).queue()
+        ctx.reply("Number: ${ctx.args["number"]?.result?.get() as Long}\nText: " +
+                (ctx.args["text"]?.result?.get() as List<*>).joinToString(" ") +
+                "\nOptional int: ${ctx.args["optional"]?.result?.get() as Long?}")
 
     }
 
-    override fun executeSlash(event: SlashCommandEvent) {
-        event.reply("Number: ${event.getOption("number")?.asLong}\nText: ${event.getOption("text")?.asString}" +
-                "\nOptional int: ${event.getOption("optional")?.asLong}").queue()
-    }
+//    override fun executeSlash(event: SlashCommandEvent) {
+//        event.reply().queue()
+//    }
 
 }

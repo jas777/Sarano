@@ -109,16 +109,28 @@ class Sarano constructor(config: String, val debug: Boolean) {
     }
 
     fun defaultEmbed(): EmbedBuilder {
+        return EmbedBuilder().setFooter(configuration.embedFooter).setColor(parseColor(configuration.embedColor))
+    }
 
-        val color: Color = try {
-            Color.decode(configuration.embedColor)
+    fun errorEmbed(): EmbedBuilder {
+        return EmbedBuilder().setFooter(configuration.embedFooter).setColor(parseColor(configuration.errorColor))
+    }
+
+    fun warnEmbed(): EmbedBuilder {
+        return EmbedBuilder().setFooter(configuration.embedFooter).setColor(parseColor(configuration.warnColor))
+    }
+
+    fun successEmbed(): EmbedBuilder {
+        return EmbedBuilder().setFooter(configuration.embedFooter).setColor(parseColor(configuration.successColor))
+    }
+
+    private fun parseColor(value: String): Color {
+        return try {
+            Color.decode("#${value}")
         } catch (exception: NumberFormatException) {
             logger.error { "Invalid embed color!" }
             Color.WHITE
         }
-
-        return EmbedBuilder().setFooter(configuration.embedFooter).setColor(color)
-
     }
 
 }

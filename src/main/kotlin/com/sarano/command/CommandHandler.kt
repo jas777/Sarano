@@ -1,18 +1,21 @@
 package com.sarano.command
 
 import com.sarano.command.argument.Arguments
+import com.sarano.command.argument.CommandArgument
+import com.sarano.command.argument.ParsedArgument
 import com.sarano.main.Sarano
-import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction
-import net.dv8tion.jda.api.entities.Command.OptionType
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import java.util.*
 import kotlin.collections.ArrayList
+import net.dv8tion.jda.api.entities.Command.OptionType
 
 class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
@@ -33,6 +36,9 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
         if (!event.message.contentDisplay.startsWith(prefix, ignoreCase = true)) return
 
+        if (!event.guild.getMember(event.jda.selfUser)?.hasPermission(event.channel, Permission.MESSAGE_WRITE)!!)
+            return
+
         val messageWithoutPrefix: List<String> = event.message.contentDisplay.split(prefix)[1].split(" ")
 
         val command = messageWithoutPrefix[0]
@@ -45,28 +51,49 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
             args = args.drop(args.indexOf(finalCommand.name) + 1)
 
-            sarano.logger.info { "${author.asTag} tried running ${finalCommand.name} in " +
-                    "${guild.id} on shard ${event.jda.shardInfo.shardId}" }
+            sarano.logger.info {
+                "${author.asTag} tried running ${finalCommand.name} in " +
+                        "${guild.id} on shard ${event.jda.shardInfo.shardId}"
+            }
 
-            if (it.ownerOnly && !sarano.configuration.developers.contains(event.author.id)) {
+            if (finalCommand.ownerOnly && !sarano.configuration.developers.contains(event.author.id)) {
                 return@getCommand
             }
 
+            var debug: Boolean = false;
+
             if (sarano.debug && event.message.contentDisplay.endsWith("-d")) {
+                args = args.dropLast(1)
+                debug = true
                 event.channel.sendMessage(
-                    "Command: ${finalCommand.name}\n\nArguments: ${args.joinToString(", ")}\n\n" +
-                            "Shard: ${event.jda.shardInfo.shardId}"
+                    sarano.warnEmbed().setTitle("Running command in debug mode").build()
                 ).queue()
             }
 
-            val arguments = Arguments(it, args)
+            val arguments = Arguments(finalCommand, args)
 
-            if (arguments.parsedArguments.size < it.arguments.filter { arg -> !arg.optional }.size) {
-                event.channel.sendMessage("Invalid arguments [debug]").queue()
+            if (arguments.parsedArguments.size < finalCommand.arguments.filter { arg -> !arg.optional }.size) {
+
+                val missingArguments: List<CommandArgument> = listOf(*finalCommand.arguments.clone())
+                    .filter { arg -> !arguments.parsedArguments.keys.contains(arg.name) }
+
+                val builder = sarano.errorEmbed()
+                    .setTitle("Missing arguments!")
+                    .setDescription(missingArguments
+                        .filter { arg -> !arg.optional }
+                        .joinToString("\n") { arg -> "`${arg.name}` - ${arg.description}" })
+
+                event.channel.sendMessage(builder.build()).queue()
+
                 return@getCommand
             }
 
-            event.member?.let { member -> finalCommand.execute(member, event.channel, event.message, event.guild, args) }
+            val context = CommandContext(
+                event.member!!, event.channel, event.message,
+                event.guild, arguments.parsedArguments, false, null, debug
+            )
+
+            event.member?.let { finalCommand.execute(context) }
 
         }
 
@@ -74,12 +101,64 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
     override fun onSlashCommand(event: SlashCommandEvent) {
 
-        getCommand(event.name, sarano.configuration.developers.contains(event.user.id)) { it ->
-            try {
-                it.executeSlash(event)
-            } catch (error: NotImplementedError) {
-                sarano.logger.error { error.message }
+        getCommand(event.name, sarano.configuration.developers.contains(event.user.id)) {
+
+            if (!event.isFromGuild) return@getCommand
+
+            val arguments: HashMap<String, ParsedArgument<*>> = hashMapOf()
+
+            for (option in event.options) {
+
+                val commandArgument = it.arguments.find { arg -> arg.name == option.name }
+
+                val result: Optional<*> = when (option.type) {
+
+                    OptionType.STRING -> {
+                        if (commandArgument?.length == null) {
+                            Optional.of(option.asString)
+                        } else {
+                            Optional.of(option.asString.split(" "))
+                        }
+                    }
+
+                    OptionType.INTEGER -> {
+                        Optional.of(option.asLong)
+                    }
+
+                    OptionType.BOOLEAN -> {
+                        Optional.of(option.asBoolean)
+                    }
+
+                    OptionType.USER -> if(option.asUser != null) Optional.of(option.asUser!!) else Optional.empty()
+
+                    OptionType.CHANNEL -> if(option.asGuildChannel != null) Optional.of(option.asGuildChannel!!)
+                                            else Optional.empty()
+
+                    OptionType.ROLE -> if(option.asRole != null) Optional.of(option.asRole!!) else Optional.empty()
+
+                    OptionType.SUB_COMMAND -> TODO()
+
+                    OptionType.SUB_COMMAND_GROUP -> TODO()
+
+                    OptionType.UNKNOWN -> throw Error("Unknown option type")
+
+                    else -> throw Error("Unknown option type")
+
+                }
+
+                commandArgument.let { arg ->
+                    arguments.put(option.name, ParsedArgument(arg!!, result))
+                }
+
             }
+
+            val context = CommandContext(
+                event.member!!, event.channel as TextChannel, null,
+                event.guild!!, arguments, true, event, sarano.debug
+            )
+
+            it.execute(context)
+
         }
 
     }
@@ -136,7 +215,24 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
             for (argument in command.arguments.sortedBy { it.optional }) {
                 slashCommand.addOption(
                     CommandUpdateAction.OptionData(argument.type, argument.name, argument.description)
-                        .setRequired(!argument.optional)
+                        .setRequired(!argument.optional).apply {
+                            for (choice in argument.choices) {
+
+                                when (choice.value) {
+                                    is Int -> {
+                                        addChoice(choice.key, choice.value as Int)
+                                    }
+                                    is String -> {
+                                        addChoice(choice.key, choice.value as String)
+                                    }
+                                    else -> {
+                                        sarano.logger
+                                            .error { "Invalid choice type for command ${command.name} (${argument.name})" }
+                                    }
+                                }
+
+                            }
+                        }
                 )
             }
 

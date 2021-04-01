@@ -3,6 +3,7 @@ package com.sarano.command
 import com.sarano.command.argument.CommandArgument
 import com.sarano.main.Sarano
 import com.sarano.module.Module
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
@@ -16,6 +17,9 @@ abstract class Command(val sarano: Sarano, val module: Module? = null) {
 
     open val aliases: Array<String> = emptyArray()
 
+    open val userPermissions: Array<Permission> = emptyArray()
+    open val botPermissions: Array<Permission>  = arrayOf(Permission.MESSAGE_WRITE)
+
     open val arguments: Array<CommandArgument> = emptyArray()
 
     open val child: Array<Command> = emptyArray()
@@ -26,8 +30,8 @@ abstract class Command(val sarano: Sarano, val module: Module? = null) {
 
     open val canSlash: Boolean = false
 
-    abstract fun execute(sender: Member, channel: TextChannel, message: Message, guild: Guild, args: List<String>)
+    abstract fun execute(ctx: CommandContext)
 
-    abstract fun executeSlash(event: SlashCommandEvent)
+    // abstract fun executeSlash(event: SlashCommandEvent)
 
 }

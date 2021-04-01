@@ -1,6 +1,7 @@
 package com.sarano.modules.dev.commands
 
 import com.sarano.command.Command
+import com.sarano.command.CommandContext
 import com.sarano.command.argument.Arguments
 import com.sarano.command.argument.CommandArgument
 import com.sarano.main.Sarano
@@ -25,33 +26,17 @@ class EvalCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
         CommandArgument("code", "Code to evaluate", OptionType.STRING, false, -1)
     )
 
-    override fun execute(sender: Member, channel: TextChannel, message: Message, guild: Guild, args: List<String>) {
+    override fun execute(ctx: CommandContext) {
 
-        val arguments = Arguments(this, args)
-
-        eval((arguments.parsedArguments["code"]?.result?.get() as List<*>)
-            .joinToString(" ")
-            .replace("kt", "")
-            .replace("`", ""), channel, sender)
-
-    }
-
-    override fun executeSlash(event: SlashCommandEvent) {
-
-        event.getOption("code")?.asString
-            ?.replace("kt", "")?.replace("`", "")?.let {
-                eval(it, event.textChannel, event.member, slash = true, event)
-            }
-
-    }
-
-    private fun eval(code: String, channel: TextChannel, sender: Member?, slash: Boolean = false, slashCommandEvent: SlashCommandEvent? = null) {
+        val code = (ctx.args["code"]?.result?.get() as List<*>)
+                .joinToString(" ")
+                .replace("kt", "")
+                .replace("`", "")
 
         val engine = ScriptEngineManager().apply {
             this.bindings = SimpleBindings().apply {
                 set("sarano", sarano)
-                set("channel", channel)
-                set("sender", sender)
+                set("ctx", ctx)
             }
         }.getEngineByExtension("kts")
 
@@ -63,25 +48,31 @@ class EvalCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
             error = exception.message
         }
 
-        val builder = sarano.defaultEmbed()
+        var builder = sarano.successEmbed()
 
         if (error == null) {
-            builder.setTitle("Eval result").setDescription("```${result?.toString()
-                ?.replace(sarano.client.shards.first().token, "<TOKEN>") ?: "void"}```")
+            builder.setTitle("Eval result").setDescription(
+                "```${
+                    result?.toString()
+                        ?.replace(sarano.client.shards.first().token, "<TOKEN>") ?: "void"
+                }```"
+            )
         } else {
+            builder = sarano.errorEmbed()
             builder.setTitle("Eval result").setDescription("```${error}```")
         }
 
-        if (!slash) {
-            channel.sendMessage(builder.build()).queue()
-        } else {
-
-            assert(slashCommandEvent != null)
-
-            slashCommandEvent?.reply(builder.build())?.queue()
-
-        }
+        ctx.reply(builder.build())
 
     }
+
+//    override fun executeSlash(event: SlashCommandEvent) {
+//
+//        event.getOption("code")?.asString
+//            ?.replace("kt", "")?.replace("`", "")?.let {
+//                eval(it, event.textChannel, event.member, slash = true, event)
+//            }
+//
+//    }
 
 }

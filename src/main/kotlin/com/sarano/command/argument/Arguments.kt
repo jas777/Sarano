@@ -18,7 +18,7 @@ class Arguments(val command: Command, val args: List<String>) {
         // Number of arguments in the message
         val numOfArgs: Int = args.size
 
-        if (numOfArgs >= command.arguments.filter { !it.optional }.size) {
+        // if (numOfArgs >= command.arguments.filter { !it.optional }.size) {
 
             // Number of arguments in the command
             val numOfCommandArgs: Int = command.arguments.size
@@ -50,6 +50,8 @@ class Arguments(val command: Command, val args: List<String>) {
 
                 } else {
 
+                    if (commandArgument.type != OptionType.STRING) throw Error("Length only applicable to string!")
+
                     var matchingArguments = 0
 
                     val resultList: MutableList<Any> = ArrayList()
@@ -74,7 +76,7 @@ class Arguments(val command: Command, val args: List<String>) {
 
                 }
             }
-        }
+        // }
     }
 
     private fun translateOption(optionType: OptionType): ArgumentMethods {
@@ -99,8 +101,8 @@ enum class ArgumentMethods constructor(val parseMethod: (sarano: Sarano, rawArgu
     ),
 
     INTEGER(
-        fun(_: Sarano, rawArgument: String): Optional<Int> {
-            return if (rawArgument.toIntOrNull() == null) Optional.empty<Int>() else Optional.of(rawArgument.toInt())
+        fun(_: Sarano, rawArgument: String): Optional<Long> {
+            return if (rawArgument.toIntOrNull() == null) Optional.empty<Long>() else Optional.of(rawArgument.toLong())
         }
     ),
 

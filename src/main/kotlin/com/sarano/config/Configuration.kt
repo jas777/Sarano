@@ -11,8 +11,13 @@ class Configuration {
 
     // Default embed settings
 
-    val embedColor:  String = ""
-    val embedFooter: String = ""
+    val embedColor:   String = ""
+
+    val errorColor:   String =  ""
+    val warnColor:    String =  ""
+    val successColor: String = ""
+
+    val embedFooter:  String = ""
 
     // Database settings
 
