@@ -16,7 +16,7 @@ class Arguments(val command: Command, val args: List<String>) {
     init {
 
         // Number of arguments in the message
-        val numOfArgs: Int = args.size
+        // val numOfArgs: Int = args.size
 
         // if (numOfArgs >= command.arguments.filter { !it.optional }.size) {
 

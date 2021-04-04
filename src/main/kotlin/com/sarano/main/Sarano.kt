@@ -4,6 +4,7 @@ import com.sarano.command.CommandHandler
 import com.sarano.command.TestCommand
 import com.sarano.config.Configuration
 import com.sarano.module.Module
+import com.sarano.modules.core.CoreModule
 import com.sarano.modules.dev.DevModule
 import me.grison.jtoml.impl.Toml
 import mu.KLogger
@@ -80,7 +81,7 @@ class Sarano constructor(config: String, val debug: Boolean) {
         // Module registration
 
         modules.addAll(
-            listOf(DevModule(this))
+            listOf(DevModule(this), CoreModule(this))
         )
 
         // Command registration (!DEV ONLY, USE MODULES!)

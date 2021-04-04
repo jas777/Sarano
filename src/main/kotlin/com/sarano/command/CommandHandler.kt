@@ -47,9 +47,11 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
         getCommand(command, sarano.configuration.developers.contains(author.id)) {
 
-            val finalCommand: Command = getChild(it, args)
+            val childResult: Pair<Int, Command> = getChild(it, args)
 
-            args = args.drop(args.indexOf(finalCommand.name) + 1)
+            val finalCommand = childResult.second
+
+            args = args.drop(childResult.first)
 
             sarano.logger.info {
                 "${author.asTag} tried running ${finalCommand.name} in " +
@@ -60,7 +62,7 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
                 return@getCommand
             }
 
-            var debug: Boolean = false;
+            var debug = false
 
             if (sarano.debug && event.message.contentDisplay.endsWith("-d")) {
                 args = args.dropLast(1)
@@ -121,13 +123,9 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
                         }
                     }
 
-                    OptionType.INTEGER -> {
-                        Optional.of(option.asLong)
-                    }
+                    OptionType.INTEGER -> Optional.of(option.asLong)
 
-                    OptionType.BOOLEAN -> {
-                        Optional.of(option.asBoolean)
-                    }
+                    OptionType.BOOLEAN -> Optional.of(option.asBoolean)
 
                     OptionType.USER -> if(option.asUser != null) Optional.of(option.asUser!!) else Optional.empty()
 
@@ -185,15 +183,21 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
     fun getCommand(name: String, ownerOnly: Boolean = false): Command? = getCommand(name, ownerOnly) {}
 
-    fun getChild(command: Command, args: List<String>): Command {
+    fun getChild(command: Command, args: List<String>): Pair<Int, Command> {
 
-        if (args.isEmpty()) return command
+        return getChild(command, args, 0)
+
+    }
+
+    fun getChild(command: Command, args: List<String>, index: Int): Pair<Int, Command> {
+
+        if (args.isEmpty()) return Pair(index, command)
 
         if (command.child.isNotEmpty() && command.child.map(Command::name).contains(args[0].toLowerCase())) {
-            return getChild(command.child.first { it.name == args[0].toLowerCase() }, args.drop(1))
+            return getChild(command.child.first { it.name == args[0].toLowerCase() }, args.drop(1), index + 1)
         }
 
-        return command
+        return Pair(index, command)
 
     }
 

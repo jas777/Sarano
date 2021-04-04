@@ -2,15 +2,9 @@ package com.sarano.modules.dev.commands
 
 import com.sarano.command.Command
 import com.sarano.command.CommandContext
-import com.sarano.command.argument.Arguments
 import com.sarano.command.argument.CommandArgument
 import com.sarano.main.Sarano
 import com.sarano.module.Module
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.TextChannel
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.entities.Command.OptionType
 import javax.script.*
 

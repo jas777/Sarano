@@ -2,12 +2,8 @@ package com.sarano.command
 
 import com.sarano.command.argument.CommandArgument
 import com.sarano.main.Sarano
-import com.sarano.module.Module
 import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.TextChannel
+import com.sarano.module.Module
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 
 abstract class Command(val sarano: Sarano, val module: Module? = null) {
