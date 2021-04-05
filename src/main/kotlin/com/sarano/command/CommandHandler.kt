@@ -4,6 +4,7 @@ import com.sarano.command.argument.Arguments
 import com.sarano.command.argument.CommandArgument
 import com.sarano.command.argument.ParsedArgument
 import com.sarano.main.Sarano
+import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.TextChannel
@@ -34,6 +35,8 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
         val prefix: String = sarano.configuration.prefix
 
+        if (event.member == null) return
+
         if (!event.message.contentDisplay.startsWith(prefix, ignoreCase = true)) return
 
         if (!event.guild.getMember(event.jda.selfUser)?.hasPermission(event.channel, Permission.MESSAGE_WRITE)!!)
@@ -52,6 +55,44 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
             val finalCommand = childResult.second
 
             args = args.drop(childResult.first)
+
+            var missingBotPermissions: Array<Permission> = finalCommand.botPermissions
+
+            missingBotPermissions = missingBotPermissions.filter { perm ->
+                !event.guild.getMember(event.jda.selfUser)!!.getPermissions(event.channel).toTypedArray().contains(perm)
+            }.toTypedArray()
+
+            if (missingBotPermissions.isNotEmpty()) {
+
+                val builder = sarano.errorEmbed()
+                    .setTitle("Missing permissions!")
+                    .setDescription("I need **${missingBotPermissions.joinToString(", ")
+                    { p -> p.getName() }}** permission(s) in order to execute this command!")
+
+                event.channel.sendMessage(builder.build()).queue()
+
+                return@getCommand
+
+            }
+
+            var missingUserPermissions: Array<Permission> = finalCommand.userPermissions
+
+            missingUserPermissions = missingUserPermissions.filter { perm ->
+                !event.member!!.getPermissions(event.channel).toTypedArray().contains(perm)
+            }.toTypedArray()
+
+            if (missingUserPermissions.isNotEmpty()) {
+
+                val builder = sarano.errorEmbed()
+                    .setTitle("Missing permissions!")
+                    .setDescription("You need **${missingUserPermissions.joinToString(", ")
+                        { p -> p.getName() }}** permission(s) in order to run this command!")
+
+                event.channel.sendMessage(builder.build()).queue()
+
+                return@getCommand
+
+            }
 
             sarano.logger.info {
                 "${author.asTag} tried running ${finalCommand.name} in " +

@@ -6,6 +6,7 @@ import com.sarano.command.argument.CommandArgument
 import com.sarano.main.Sarano
 import com.sarano.module.Module
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Command.OptionType
 
 class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
@@ -16,6 +17,11 @@ class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
     override val canSlash: Boolean = true
 
     override val cooldown: Int = 5
+
+    // Debugging was fun :)
+    // override val userPermissions: Array<Permission> = arrayOf(Permission.ADMINISTRATOR)
+
+    // override val botPermissions: Array<Permission> = arrayOf(Permission.ADMINISTRATOR, Permission.BAN_MEMBERS)
 
     override val arguments: Array<CommandArgument> = arrayOf(
         CommandArgument(
@@ -43,6 +49,12 @@ class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
         ctx.debug(ctx.args.map { "${it.key} - ${it.value.result}" }.joinToString(" "))
 
         var builder = sarano.defaultEmbed()
+
+        if (ctx.args["command_or_module"] == null) {
+            defaultHelp(builder)
+            ctx.reply(builder.build())
+            return
+        }
 
         val input: String = ctx.args["command_or_module"]!!.result.get() as String
 
