@@ -13,8 +13,8 @@ plugins {
 //    }
 //}
 
-group = "com.sarano"
-version = "v0.0.1"
+group = "com.github.jas777"
+version = "v0.0.2"
 
 repositories {
     mavenCentral()
@@ -57,4 +57,25 @@ compileKotlin.kotlinOptions {
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
     jvmTarget = "1.8"
+}
+
+tasks {
+
+    val sourcesJar by creating(Jar::class) {
+        archiveClassifier.set("sources")
+        from(sourceSets.main.get().allSource)
+    }
+
+    val javadocJar by creating(Jar::class) {
+        dependsOn.add(javadoc)
+        archiveClassifier.set("javadoc")
+        from(javadoc)
+    }
+
+    artifacts {
+        archives(sourcesJar)
+        archives(javadocJar)
+        archives(jar)
+    }
+
 }
