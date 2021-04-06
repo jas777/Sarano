@@ -213,7 +213,7 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
             .filter { it.name.equals(name, ignoreCase = true) || it.aliases.contains(name) }
             .findFirst()
 
-        return if (command.isEmpty()) {
+        return if (!command.isPresent) {
             null
         } else {
             commandConsumer(command.get())

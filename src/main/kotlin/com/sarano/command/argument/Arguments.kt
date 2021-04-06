@@ -44,7 +44,7 @@ class Arguments(val command: Command, val args: List<String>) {
                         indexedArgument++
                         parsedArguments[commandArgument.name] = ParsedArgument(commandArgument, parsedResult)
 
-                    } else if (parsedResult.isEmpty() && commandArgument.optional) {
+                    } else if (!parsedResult.isPresent && commandArgument.optional) {
                         continue
                     }
 
