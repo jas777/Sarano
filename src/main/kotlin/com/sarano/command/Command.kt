@@ -14,7 +14,7 @@ abstract class Command(val sarano: Sarano, val module: Module? = null) {
     open val aliases: Array<String> = emptyArray()
 
     open val userPermissions: Array<Permission> = emptyArray()
-    open val botPermissions: Array<Permission>  = arrayOf(Permission.MESSAGE_WRITE)
+    open val botPermissions: Array<Permission> = arrayOf(Permission.MESSAGE_WRITE)
 
     open val arguments: Array<CommandArgument> = emptyArray()
 

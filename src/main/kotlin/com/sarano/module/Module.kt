@@ -5,8 +5,8 @@ import com.sarano.main.Sarano
 
 abstract class Module constructor(val sarano: Sarano) {
 
-    abstract val name        : String
-    abstract val description : String
+    abstract val name: String
+    abstract val description: String
 
     open val commands: Array<Command> = emptyArray()
 

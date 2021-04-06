@@ -26,20 +26,21 @@ class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
     override val arguments: Array<CommandArgument> = arrayOf(
         CommandArgument(
             "command_or_module", "The module or command you want to get more information about",
-            OptionType.STRING, true, choices = hashMapOf(*mutableListOf<Pair<String, Any>>(Pair("help", "help"))
-                .apply {
+            OptionType.STRING, true, choices = hashMapOf(
+                *mutableListOf<Pair<String, Any>>(Pair("help", "help"))
+                    .apply {
 
-                    addAll((sarano.commandHandler.commands.filter { !it.ownerOnly }.map {
-                        Pair(it.name, it.name)
-                    }))
+                        addAll((sarano.commandHandler.commands.filter { !it.ownerOnly }.map {
+                            Pair(it.name, it.name)
+                        }))
 
-                    addAll(
-                        sarano.modules.map { Pair("(Module) ${it.name}", it.name) }
-                    )
+                        addAll(
+                            sarano.modules.map { Pair("(Module) ${it.name}", it.name) }
+                        )
 
-                    sarano.logger.debug { joinToString(" ") { it.first } }
+                        sarano.logger.debug { joinToString(" ") { it.first } }
 
-                }.toTypedArray()
+                    }.toTypedArray()
             )
         )
     )

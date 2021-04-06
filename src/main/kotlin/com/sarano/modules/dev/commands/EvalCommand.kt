@@ -23,9 +23,9 @@ class EvalCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
     override fun execute(ctx: CommandContext) {
 
         val code = (ctx.args["code"]?.result as List<*>)
-                .joinToString(" ")
-                .replace("kt", "")
-                .replace("`", "")
+            .joinToString(" ")
+            .replace("kt", "")
+            .replace("`", "")
 
         val engine = ScriptEngineManager().apply {
             this.bindings = SimpleBindings().apply {

@@ -66,8 +66,11 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
                 val builder = sarano.errorEmbed()
                     .setTitle("Missing permissions!")
-                    .setDescription("I need **${missingBotPermissions.joinToString(", ")
-                    { p -> p.getName() }}** permission(s) in order to execute this command!")
+                    .setDescription("I need **${
+                        missingBotPermissions.joinToString(", ")
+                        { p -> p.getName() }
+                    }** permission(s) in order to execute this command!"
+                    )
 
                 event.channel.sendMessage(builder.build()).queue()
 
@@ -85,8 +88,11 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
                 val builder = sarano.errorEmbed()
                     .setTitle("Missing permissions!")
-                    .setDescription("You need **${missingUserPermissions.joinToString(", ")
-                        { p -> p.getName() }}** permission(s) in order to run this command!")
+                    .setDescription("You need **${
+                        missingUserPermissions.joinToString(", ")
+                        { p -> p.getName() }
+                    }** permission(s) in order to run this command!"
+                    )
 
                 event.channel.sendMessage(builder.build()).queue()
 
@@ -168,12 +174,12 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
                     OptionType.BOOLEAN -> Optional.of(option.asBoolean)
 
-                    OptionType.USER -> if(option.asUser != null) Optional.of(option.asUser!!) else Optional.empty()
+                    OptionType.USER -> if (option.asUser != null) Optional.of(option.asUser!!) else Optional.empty()
 
-                    OptionType.CHANNEL -> if(option.asGuildChannel != null) Optional.of(option.asGuildChannel!!)
-                                            else Optional.empty()
+                    OptionType.CHANNEL -> if (option.asGuildChannel != null) Optional.of(option.asGuildChannel!!)
+                    else Optional.empty()
 
-                    OptionType.ROLE -> if(option.asRole != null) Optional.of(option.asRole!!) else Optional.empty()
+                    OptionType.ROLE -> if (option.asRole != null) Optional.of(option.asRole!!) else Optional.empty()
 
                     OptionType.SUB_COMMAND -> TODO()
 

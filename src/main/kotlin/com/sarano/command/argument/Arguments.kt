@@ -20,64 +20,64 @@ class Arguments(val command: Command, val args: List<String>) {
 
         // if (numOfArgs >= command.arguments.filter { !it.optional }.size) {
 
-            // Number of arguments in the command
-            val numOfCommandArgs: Int = command.arguments.size
+        // Number of arguments in the command
+        val numOfCommandArgs: Int = command.arguments.size
 
-            // Current index of argument from the args array
-            var indexedArgument = 0
+        // Current index of argument from the args array
+        var indexedArgument = 0
 
-            for (index in 0 until numOfCommandArgs) {
+        for (index in 0 until numOfCommandArgs) {
 
-                if (indexedArgument >= args.size) break
+            if (indexedArgument >= args.size) break
 
-                val commandArgument: CommandArgument = command.arguments[index]
+            val commandArgument: CommandArgument = command.arguments[index]
 
-                val parsedResult: Any?
+            val parsedResult: Any?
 
-                if (commandArgument.length == null) {
+            if (commandArgument.length == null) {
 
-                    parsedResult =
-                        translateOption(commandArgument.type).parseMethod(command.sarano, args[indexedArgument])
+                parsedResult =
+                    translateOption(commandArgument.type).parseMethod(command.sarano, args[indexedArgument])
 
-                    if (parsedResult != null) {
+                if (parsedResult != null) {
 
-                        indexedArgument++
-                        parsedArguments[commandArgument.name] = ParsedArgument(commandArgument, parsedResult)
+                    indexedArgument++
+                    parsedArguments[commandArgument.name] = ParsedArgument(commandArgument, parsedResult)
 
-                    } else if (commandArgument.optional) {
-                        continue
+                } else if (commandArgument.optional) {
+                    continue
+                }
+
+            } else {
+
+                if (commandArgument.type != OptionType.STRING) throw Error("Length only applicable to string!")
+
+                var matchingArguments = 0
+
+                val resultList: MutableList<Any> = ArrayList()
+
+                for (argIndex in 0 until if (commandArgument.length == -1) args.size - indexedArgument else
+                    commandArgument.length) {
+
+                    if (args.size <= indexedArgument + argIndex) break
+
+                    val result = translateOption(commandArgument.type)
+                        .parseMethod(command.sarano, args[indexedArgument + argIndex])
+
+                    result?.let {
+                        resultList.add(result)
+                        matchingArguments++
                     }
 
-                } else {
-
-                    if (commandArgument.type != OptionType.STRING) throw Error("Length only applicable to string!")
-
-                    var matchingArguments = 0
-
-                    val resultList: MutableList<Any> = ArrayList()
-
-                    for (argIndex in 0 until if(commandArgument.length == -1) args.size - indexedArgument else
-                        commandArgument.length) {
-
-                        if (args.size <= indexedArgument + argIndex) break
-
-                        val result = translateOption(commandArgument.type)
-                            .parseMethod(command.sarano, args[indexedArgument + argIndex])
-
-                        result?.let {
-                            resultList.add(result)
-                            matchingArguments++
-                        }
-
-                        if (result == null) break
-
-                    }
-
-                    indexedArgument += matchingArguments
-                    parsedArguments[commandArgument.name] = ParsedArgument(commandArgument, resultList)
+                    if (result == null) break
 
                 }
+
+                indexedArgument += matchingArguments
+                parsedArguments[commandArgument.name] = ParsedArgument(commandArgument, resultList)
+
             }
+        }
         // }
     }
 
