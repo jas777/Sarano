@@ -8,4 +8,4 @@ data class CommandArgument(val name: String, val description: String, val type: 
                            val optional: Boolean, val length: Int? = null, val choices: HashMap<String, Any> = hashMapOf()
 )
 
-data class ParsedArgument <T> (val argument: CommandArgument, val result: Optional<T>)
+data class ParsedArgument <T> (val argument: CommandArgument, val result: T)

@@ -56,7 +56,7 @@ class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
             return
         }
 
-        val input: String = ctx.args["command_or_module"]!!.result.get() as String
+        val input: String = ctx.args["command_or_module"]!!.result as String
 
         ctx.debug("Input: $input")
 

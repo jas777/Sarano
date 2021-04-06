@@ -80,9 +80,9 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
         // Module registration
 
-        //  modules.addAll(
-        //      listOf(DevModule(this), CoreModule(this))
-        // )
+//          modules.addAll(
+//              listOf(DevModule(this), CoreModule(this))
+//          )
 
         // Command registration (!DEV ONLY, USE MODULES!)
 

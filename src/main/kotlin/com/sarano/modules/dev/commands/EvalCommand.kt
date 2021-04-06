@@ -22,7 +22,7 @@ class EvalCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
 
     override fun execute(ctx: CommandContext) {
 
-        val code = (ctx.args["code"]?.result?.get() as List<*>)
+        val code = (ctx.args["code"]?.result as List<*>)
                 .joinToString(" ")
                 .replace("kt", "")
                 .replace("`", "")

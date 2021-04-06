@@ -26,9 +26,9 @@ class TestCommand(sarano: Sarano) : Command(sarano) {
 
     override fun execute(ctx: CommandContext) {
 
-        ctx.reply("Number: ${ctx.args["number"]?.result?.get() as Long}\nText: " +
-                (ctx.args["text"]?.result?.get() as List<*>).joinToString(" ") +
-                "\nOptional int: ${ctx.args["optional"]?.result?.get() as Long?}")
+        ctx.reply("Number: ${ctx.args["number"]?.result as Long}\nText: " +
+                (ctx.args["text"]?.result as List<*>).joinToString(" ") +
+                "\nOptional int: ${ctx.args["optional"]?.result as Long?}")
 
     }
 

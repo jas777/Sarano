@@ -32,19 +32,19 @@ class Arguments(val command: Command, val args: List<String>) {
 
                 val commandArgument: CommandArgument = command.arguments[index]
 
-                val parsedResult: Optional<*>
+                val parsedResult: Any?
 
                 if (commandArgument.length == null) {
 
                     parsedResult =
                         translateOption(commandArgument.type).parseMethod(command.sarano, args[indexedArgument])
 
-                    if (parsedResult.isPresent) {
+                    if (parsedResult != null) {
 
                         indexedArgument++
                         parsedArguments[commandArgument.name] = ParsedArgument(commandArgument, parsedResult)
 
-                    } else if (!parsedResult.isPresent && commandArgument.optional) {
+                    } else if (commandArgument.optional) {
                         continue
                     }
 
@@ -64,15 +64,17 @@ class Arguments(val command: Command, val args: List<String>) {
                         val result = translateOption(commandArgument.type)
                             .parseMethod(command.sarano, args[indexedArgument + argIndex])
 
-                        if (result.isPresent) {
-                            resultList.add(result.get())
+                        result?.let {
+                            resultList.add(result)
                             matchingArguments++
-                        } else break
+                        }
+
+                        if (result == null) break
 
                     }
 
                     indexedArgument += matchingArguments
-                    parsedArguments[commandArgument.name] = ParsedArgument(commandArgument, Optional.of(resultList))
+                    parsedArguments[commandArgument.name] = ParsedArgument(commandArgument, resultList)
 
                 }
             }
@@ -90,25 +92,25 @@ class Arguments(val command: Command, val args: List<String>) {
 
 }
 
-enum class ArgumentMethods constructor(val parseMethod: (sarano: Sarano, rawArgument: String) -> Optional<*>) {
+enum class ArgumentMethods constructor(val parseMethod: (sarano: Sarano, rawArgument: String) -> Any?) {
 
     // UNKNOWN(-1), SUB_COMMAND(1), SUB_COMMAND_GROUP(2), STRING(3, true), INTEGER(4, false), BOOLEAN(5), USER(6), CHANNEL(7), ROLE(8);
 
     STRING(
-        fun(_: Sarano, rawArgument: String): Optional<String> {
-            return Optional.of(rawArgument)
+        fun(_: Sarano, rawArgument: String): String {
+            return rawArgument
         }
     ),
 
     INTEGER(
-        fun(_: Sarano, rawArgument: String): Optional<Long> {
-            return if (rawArgument.toIntOrNull() == null) Optional.empty<Long>() else Optional.of(rawArgument.toLong())
+        fun(_: Sarano, rawArgument: String): Long? {
+            return if (rawArgument.toLongOrNull() == null) null else rawArgument.toLong()
         }
     ),
 
     BOOLEAN(
-        fun(_: Sarano, rawArgument: String): Optional<Boolean> {
-            return Optional.of(rawArgument.equals("true", ignoreCase = true))
+        fun(_: Sarano, rawArgument: String): Boolean {
+            return rawArgument.equals("true", ignoreCase = true)
         }
     )
 
