@@ -13,8 +13,8 @@ plugins {
 //    }
 //}
 
-group = "com.github.jas777"
-version = "v0.0.1"
+group = "com.sarano"
+version = "0.0.1"
 
 repositories {
     mavenCentral()
