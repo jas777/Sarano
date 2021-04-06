@@ -56,6 +56,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.0-alpha1")
 
     implementation("org.jetbrains.exposed:exposed-core:0.29.1")
+    implementation("com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.7")
 
     implementation("me.grison:jtoml:1.0.0")
     implementation(kotlin("stdlib-jdk8"))
