@@ -1,20 +1,18 @@
 package com.sarano.command.argument
 
 import com.sarano.command.Command
-import com.sarano.command.CommandContext
-import com.sarano.main.Sarano
-import java.util.*
+import net.dv8tion.jda.api.JDA
 
 import net.dv8tion.jda.api.entities.Command.OptionType
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 @Suppress("UNCHECKED_CAST")
-class Arguments(val sarano: Sarano, val command: Command, val args: List<String>) {
+class Arguments {
 
-    var parsedArguments: HashMap<String, ParsedArgument<*>> = HashMap()
+    var parsedArguments: HashMap<String, ParsedArgument<Any>> = HashMap()
 
-    init {
+    constructor (jda: JDA, command: Command, args: List<String>) {
 
         // Number of arguments in the message
         // val numOfArgs: Int = args.size
@@ -38,7 +36,7 @@ class Arguments(val sarano: Sarano, val command: Command, val args: List<String>
             if (commandArgument.length == null) {
 
                 parsedResult =
-                    translateOption(commandArgument.type).parseMethod(sarano, args[indexedArgument])
+                    translateOption(commandArgument.type).parseMethod(jda, args[indexedArgument])
 
                 if (parsedResult != null) {
 
@@ -51,7 +49,7 @@ class Arguments(val sarano: Sarano, val command: Command, val args: List<String>
 
             } else {
 
-                if (commandArgument.type != OptionType.STRING) throw Error("Length only applicable to string!")
+                if (commandArgument.type != OptionType.STRING) error("Length only applicable to string!")
 
                 var matchingArguments = 0
 
@@ -63,7 +61,7 @@ class Arguments(val sarano: Sarano, val command: Command, val args: List<String>
                     if (args.size <= indexedArgument + argIndex) break
 
                     val result = translateOption(commandArgument.type)
-                        .parseMethod(sarano, args[indexedArgument + argIndex])
+                        .parseMethod(jda, args[indexedArgument + argIndex])
 
                     result?.let {
                         resultList.add(result)
@@ -82,35 +80,55 @@ class Arguments(val sarano: Sarano, val command: Command, val args: List<String>
         // }
     }
 
+    constructor(parsedArguments: HashMap<String, ParsedArgument<Any>>) {
+        this.parsedArguments = parsedArguments
+    }
+
     private fun translateOption(optionType: OptionType): ArgumentMethods {
         return when (optionType) {
             OptionType.STRING -> ArgumentMethods.STRING
             OptionType.INTEGER -> ArgumentMethods.INTEGER
             OptionType.BOOLEAN -> ArgumentMethods.BOOLEAN
-            else -> throw Error("Invalid option!")
+            else -> error("Invalid option!")
         }
     }
 
+    operator fun get(argument: String): Any {
+        return parsedArguments[argument]?.result ?: error("Argument not present!")
+    }
+
+    fun <T> optional(argument: String): T? = parsedArguments[argument]?.result as T?
+
+    fun string(argument: String): String = this[argument] as String
+
+    fun stringList(argument: String): List<String> = this[argument] as List<String>
+
+    fun integer(argument: String): Int = this[argument] as Int
+
+    fun long(argument: String): Long = this[argument] as Long
+
+    fun boolean(argument: String): Boolean = this[argument] as Boolean
+
 }
 
-enum class ArgumentMethods constructor(val parseMethod: (sarano: Sarano, rawArgument: String) -> Any?) {
+enum class ArgumentMethods constructor(val parseMethod: (jda: JDA, rawArgument: String) -> Any?) {
 
     // UNKNOWN(-1), SUB_COMMAND(1), SUB_COMMAND_GROUP(2), STRING(3, true), INTEGER(4, false), BOOLEAN(5), USER(6), CHANNEL(7), ROLE(8);
 
     STRING(
-        fun(_: Sarano, rawArgument: String): String {
+        fun(_: JDA, rawArgument: String): String {
             return rawArgument
         }
     ),
 
     INTEGER(
-        fun(_: Sarano, rawArgument: String): Long? {
+        fun(_: JDA, rawArgument: String): Long? {
             return if (rawArgument.toLongOrNull() == null) null else rawArgument.toLong()
         }
     ),
 
     BOOLEAN(
-        fun(_: Sarano, rawArgument: String): Boolean {
+        fun(_: JDA, rawArgument: String): Boolean {
             return rawArgument.equals("true", ignoreCase = true)
         }
     )

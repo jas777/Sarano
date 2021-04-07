@@ -1,6 +1,7 @@
 package com.sarano.main
 
 import com.sarano.command.CommandHandler
+import com.sarano.command.TestCommand
 import com.sarano.config.Configuration
 import com.sarano.module.Module
 import com.sarano.modules.core.commands.HelpCommand
@@ -16,7 +17,6 @@ import org.slf4j.LoggerFactory
 import java.awt.Color
 import java.io.File
 import java.io.IOException
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.system.exitProcess
 
@@ -26,7 +26,27 @@ fun main(args: Array<String>) {
         println("Please supply the config path!")
         exitProcess(1)
     } else {
-        Sarano(args[0], args.size > 1).start()
+
+        Sarano(args[0], args.size > 1).apply {
+
+            // Module registration
+
+            modules.addAll(
+                listOf(
+                    Module("dev", "Dev module", arrayOf(EvalCommand()), emptyArray()),
+                    Module(
+                        "core", "Contains all essential commands", arrayOf(HelpCommand(commandHandler)),
+                        arrayOf(commandHandler)
+                    )
+                )
+            )
+
+            // Command registration (!DEV ONLY, USE MODULES!)
+
+            commandHandler.registerCommands(TestCommand())
+
+        }.start()
+
     }
 
 }
@@ -77,29 +97,9 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
         }
 
-        // Module registration
-
-        modules.addAll(
-            listOf(
-                Module("dev", "Dev module", arrayOf(EvalCommand()), emptyArray()),
-                Module("core", "Contains all essential commands", arrayOf(HelpCommand(commandHandler)), emptyArray())
-            )
-        )
-
-        // Command registration (!DEV ONLY, USE MODULES!)
-
-        // commandHandler.registerCommands(TestCommand(this))
-
     }
 
     fun start() {
-
-        // Module init
-
-        modules.forEach {
-            commandHandler.registerCommands(*it.commands)
-            client.addEventListener(*it.listeners)
-        }
 
         // Shard manager setup
 
@@ -108,9 +108,12 @@ class Sarano constructor(config: String, val debug: Boolean) {
             .enableIntents(GatewayIntent.GUILD_MEMBERS)
             .build()
 
-        // Event listeners registration
+        // Module init
 
-        client.addEventListener(commandHandler)
+        modules.forEach {
+            commandHandler.registerCommands(*it.commands)
+            client.addEventListener(*it.listeners)
+        }
 
     }
 

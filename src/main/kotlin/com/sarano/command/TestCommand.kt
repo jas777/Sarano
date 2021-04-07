@@ -29,9 +29,9 @@ class TestCommand : Command {
     override fun execute(ctx: CommandContext) {
 
         ctx.reply(
-            "Number: ${ctx.args["number"]?.result as Long}\nText: " +
-                    (ctx.args["text"]?.result as List<*>).joinToString(" ") +
-                    "\nOptional int: ${ctx.args["optional"]?.result as Long?}"
+            "Number: ${ctx.args.long("number")}\nText: " +
+                    (ctx.args.stringList("text")).joinToString(" ") +
+                    "\nOptional int: ${ctx.args.optional<Long>("optional") ?: "Null"}"
         )
 
     }

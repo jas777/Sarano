@@ -4,7 +4,6 @@ import com.sarano.command.argument.Arguments
 import com.sarano.command.argument.CommandArgument
 import com.sarano.command.argument.ParsedArgument
 import com.sarano.main.Sarano
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.TextChannel
@@ -14,13 +13,11 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
-import java.util.*
-import kotlin.collections.ArrayList
 import net.dv8tion.jda.api.entities.Command.OptionType
 
 class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
-    val commands: MutableList<Command> = ArrayList()
+    val commands: MutableList<Command> = mutableListOf()
 
     lateinit var slashRegistry: CommandUpdateAction
 
@@ -119,7 +116,7 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
                 ).queue()
             }
 
-            val arguments = Arguments(sarano, finalCommand, args)
+            val arguments = Arguments(event.jda, finalCommand, args)
 
             if (arguments.parsedArguments.size < finalCommand.arguments.filter { arg -> !arg.optional }.size) {
 
@@ -140,7 +137,7 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
             val context = CommandContext(
                 sarano, event.member!!, event.channel, event.message,
-                event.guild, arguments.parsedArguments, false, null, debug
+                event.guild, arguments, false, null, debug
             )
 
             event.member?.let { finalCommand.execute(context) }
@@ -151,59 +148,66 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
     override fun onSlashCommand(event: SlashCommandEvent) {
 
-        getCommand(event.name, sarano.configuration.developers.contains(event.user.id)) {
+        try {
 
-            if (!event.isFromGuild) return@getCommand
+            getCommand(event.name, sarano.configuration.developers.contains(event.user.id)) {
 
-            val arguments: HashMap<String, ParsedArgument<*>> = hashMapOf()
+                if (!event.isFromGuild) return@getCommand
 
-            for (option in event.options) {
+                val arguments: HashMap<String, ParsedArgument<Any>> = hashMapOf()
 
-                val commandArgument = it.arguments.find { arg -> arg.name == option.name }
+                for (option in event.options) {
 
-                val result: Any? = when (option.type) {
+                    val commandArgument = it.arguments.find { arg -> arg.name == option.name }
 
-                    OptionType.STRING -> {
-                        if (commandArgument?.length == null) {
-                            option.asString
-                        } else {
-                            option.asString.split(" ")
+                    val result: Any = when (option.type) {
+
+                        OptionType.STRING -> {
+                            if (commandArgument?.length == null) {
+                                option.asString
+                            } else {
+                                option.asString.split(" ")
+                            }
                         }
+
+                        OptionType.INTEGER -> option.asLong
+
+                        OptionType.BOOLEAN -> option.asBoolean
+
+                        OptionType.USER -> option.asUser ?: error("Unresolved user")
+
+                        OptionType.CHANNEL -> option.asGuildChannel ?: error("Unresolved channel")
+
+                        OptionType.ROLE -> option.asRole ?: error("Unresolved role")
+
+                        OptionType.SUB_COMMAND -> TODO()
+
+                        OptionType.SUB_COMMAND_GROUP -> TODO()
+
+                        OptionType.UNKNOWN -> error("Unknown option type")
+
+                        else -> error("Unknown option type")
+
                     }
 
-                    OptionType.INTEGER -> option.asLong
-
-                    OptionType.BOOLEAN -> option.asBoolean
-
-                    OptionType.USER -> option.asUser
-
-                    OptionType.CHANNEL -> option.asGuildChannel
-
-                    OptionType.ROLE -> option.asRole
-
-                    OptionType.SUB_COMMAND -> TODO()
-
-                    OptionType.SUB_COMMAND_GROUP -> TODO()
-
-                    OptionType.UNKNOWN -> throw Error("Unknown option type")
-
-                    else -> throw Error("Unknown option type")
+                    commandArgument.let { arg ->
+                        arguments.put(option.name, ParsedArgument(arg!!, result))
+                    }
 
                 }
 
-                commandArgument.let { arg ->
-                    arguments.put(option.name, ParsedArgument(arg!!, result))
-                }
+                val context = CommandContext(
+                    sarano, event.member!!, event.channel as TextChannel, null,
+                    event.guild!!, Arguments(arguments), true, event, sarano.debug
+                )
+
+                it.execute(context)
 
             }
 
-            val context = CommandContext(
-                sarano, event.member!!, event.channel as TextChannel, null,
-                event.guild!!, arguments, true, event, sarano.debug
-            )
-
-            it.execute(context)
-
+        } catch (error: Error) {
+            event.reply(sarano.errorEmbed().setDescription("${error.message}\n\nPlease contact support")
+                .build()).queue()
         }
 
     }
@@ -215,16 +219,14 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
     fun getCommand(name: String, ownerOnly: Boolean = false, commandConsumer: (Command) -> Unit): Command? {
 
-        val command: Optional<Command> = commands.stream()
-            .filter { it.name.equals(name, ignoreCase = true) || it.aliases.contains(name) }
-            .findFirst()
+        val command: Command? = commands.find { it.name.equals(name, ignoreCase = true) || it.aliases.contains(name) }
 
-        return if (!command.isPresent) {
-            null
-        } else {
-            commandConsumer(command.get())
-            return command.get()
+        command?.let {
+            commandConsumer(command)
+            return command
         }
+
+        return null
 
     }
 

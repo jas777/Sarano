@@ -8,7 +8,7 @@ import com.sarano.module.Module
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Command.OptionType
 
-class HelpCommand(commandHandler: CommandHandler) : Command {
+class HelpCommand(private val commandHandler: CommandHandler) : Command {
 
     override val name: String = "help"
     override val description: String = "Provides explanation on how to use commands and/or modules"
@@ -44,21 +44,21 @@ class HelpCommand(commandHandler: CommandHandler) : Command {
 
     override fun execute(ctx: CommandContext) {
 
-        ctx.debug(ctx.args.map { "${it.key} - ${it.value.result}" }.joinToString(" "))
+        ctx.debug(ctx.args.parsedArguments.map { "${it.key} - ${it.value.result}" }.joinToString(" "))
 
         var builder = ctx.sarano.defaultEmbed()
 
-        if (ctx.args["command_or_module"] == null) {
+        ctx.args.parsedArguments["command_or_module"] ?: run {
             defaultHelp(ctx, builder)
             ctx.reply(builder.build())
             return
         }
 
-        val input: String = ctx.args["command_or_module"]!!.result as String
+        val input: String = ctx.args.string("command_or_module")
 
         ctx.debug("Input: $input")
 
-        val command = ctx.sarano.commandHandler.getCommand(input)
+        val command = commandHandler.getCommand(input)
 
         builder = when {
 

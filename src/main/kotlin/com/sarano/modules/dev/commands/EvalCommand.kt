@@ -22,7 +22,7 @@ class EvalCommand : Command {
 
     override fun execute(ctx: CommandContext) {
 
-        val code = (ctx.args["code"]?.result as List<*>)
+        val code = (ctx.args.stringList("code"))
             .joinToString(" ")
             .replace("kt", "")
             .replace("`", "")
