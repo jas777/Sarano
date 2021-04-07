@@ -3,13 +3,13 @@ package com.sarano.module
 import com.sarano.command.Command
 import com.sarano.main.Sarano
 
-abstract class Module {
+interface Module {
 
-    abstract val name: String
-    abstract val description: String
+    val name: String
+    val description: String
 
-    open val commands: Array<Command> = emptyArray()
+    val commands: Array<Command> get() = emptyArray()
 
-    abstract fun setup(): Unit
+    fun setup()
 
 }

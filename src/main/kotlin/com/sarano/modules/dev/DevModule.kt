@@ -5,7 +5,7 @@ import com.sarano.main.Sarano
 import com.sarano.module.Module
 import com.sarano.modules.dev.commands.EvalCommand
 
-class DevModule(sarano: Sarano) : Module() {
+class DevModule : Module {
 
     override val name: String = "dev"
     override val description: String = "dev"
