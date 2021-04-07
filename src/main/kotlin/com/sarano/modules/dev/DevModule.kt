@@ -5,18 +5,15 @@ import com.sarano.main.Sarano
 import com.sarano.module.Module
 import com.sarano.modules.dev.commands.EvalCommand
 
-class DevModule(sarano: Sarano) : Module(sarano) {
+class DevModule(sarano: Sarano) : Module() {
 
     override val name: String = "dev"
     override val description: String = "dev"
 
     override val commands: Array<Command> = arrayOf(
-        EvalCommand(sarano, this)
+        EvalCommand()
     )
 
-    override fun setup() {
-        sarano.commandHandler.registerCommands(*commands)
-        sarano.logger.info { "Dev module setup complete" }
-    }
+    override fun setup() {}
 
 }

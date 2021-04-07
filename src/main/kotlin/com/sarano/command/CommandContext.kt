@@ -1,11 +1,12 @@
 package com.sarano.command
 
 import com.sarano.command.argument.ParsedArgument
+import com.sarano.main.Sarano
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 
 data class CommandContext(
-    val sender: Member, val channel: TextChannel, val message: Message?,
+    val sarano: Sarano, val sender: Member, val channel: TextChannel, val message: Message?,
     val guild: Guild, val args: HashMap<String, ParsedArgument<*>>, val slash: Boolean,
     val slashEvent: SlashCommandEvent?, val debug: Boolean
 ) {

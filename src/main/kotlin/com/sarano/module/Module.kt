@@ -3,7 +3,7 @@ package com.sarano.module
 import com.sarano.command.Command
 import com.sarano.main.Sarano
 
-abstract class Module constructor(val sarano: Sarano) {
+abstract class Module {
 
     abstract val name: String
     abstract val description: String

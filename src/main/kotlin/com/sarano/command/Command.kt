@@ -6,27 +6,27 @@ import net.dv8tion.jda.api.Permission
 import com.sarano.module.Module
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 
-abstract class Command(val sarano: Sarano, val module: Module? = null) {
+interface Command {
 
-    abstract val name: String
-    abstract val description: String
+    val name: String
+    val description: String
 
-    open val aliases: Array<String> = emptyArray()
+    val aliases: Array<String> get() = emptyArray()
 
-    open val userPermissions: Array<Permission> = emptyArray()
-    open val botPermissions: Array<Permission> = arrayOf(Permission.MESSAGE_WRITE)
+    val userPermissions: Array<Permission> get() = emptyArray()
+    val botPermissions: Array<Permission> get() = arrayOf(Permission.MESSAGE_WRITE)
 
-    open val arguments: Array<CommandArgument> = emptyArray()
+    val arguments: Array<CommandArgument> get() = emptyArray()
 
-    open val child: Array<Command> = emptyArray()
+    val child: Array<Command> get() = emptyArray()
 
-    open val ownerOnly: Boolean = false
+    val ownerOnly: Boolean get() = false
 
-    open val cooldown: Int = 3
+    val cooldown: Int get() = 3
 
-    open val canSlash: Boolean = false
+    val canSlash: Boolean get() = false
 
-    abstract fun execute(ctx: CommandContext)
+    fun execute(ctx: CommandContext)
 
     // abstract fun executeSlash(event: SlashCommandEvent)
 

@@ -4,7 +4,7 @@ import com.sarano.command.argument.CommandArgument
 import com.sarano.main.Sarano
 import net.dv8tion.jda.api.entities.Command.OptionType
 
-class TestCommand(sarano: Sarano) : Command(sarano) {
+class TestCommand : Command {
 
     override val name: String = "test"
 

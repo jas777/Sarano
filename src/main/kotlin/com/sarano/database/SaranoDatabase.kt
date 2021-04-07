@@ -1,15 +1,16 @@
 package com.sarano.database
 
+import com.sarano.config.Configuration
 import com.sarano.main.Sarano
 import org.jetbrains.exposed.sql.Database
 
-class SaranoDatabase constructor(sarano: Sarano) {
+class SaranoDatabase constructor(configuration: Configuration) {
 
     val database: Database = Database.connect(
-        "jdbc:pgsql://${sarano.configuration.url}",
+        "jdbc:pgsql://${configuration.url}",
         "com.impossibl.postgres.jdbc.PGDriver",
-        sarano.configuration.user,
-        sarano.configuration.password
+        configuration.user,
+        configuration.password
     )
 
 }

@@ -8,7 +8,7 @@ import com.sarano.module.Module
 import net.dv8tion.jda.api.entities.Command.OptionType
 import javax.script.*
 
-class EvalCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
+class EvalCommand : Command {
 
     override val name: String = "eval"
     override val description: String = "Used to eval code"
@@ -29,7 +29,6 @@ class EvalCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
 
         val engine = ScriptEngineManager().apply {
             this.bindings = SimpleBindings().apply {
-                set("sarano", sarano)
                 set("ctx", ctx)
             }
         }.getEngineByExtension("kts")
@@ -42,17 +41,17 @@ class EvalCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
             error = exception.message
         }
 
-        var builder = sarano.successEmbed()
+        var builder = ctx.sarano.successEmbed()
 
         if (error == null) {
             builder.setTitle("Eval result").setDescription(
                 "```${
                     result?.toString()
-                        ?.replace(sarano.client.shards.first().token, "<TOKEN>") ?: "void"
+                        ?.replace(ctx.sarano.client.shards.first().token, "<TOKEN>") ?: "void"
                 }```"
             )
         } else {
-            builder = sarano.errorEmbed()
+            builder = ctx.sarano.errorEmbed()
             builder.setTitle("Eval result").setDescription("```${error}```")
         }
 

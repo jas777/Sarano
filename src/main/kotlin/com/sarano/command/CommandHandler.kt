@@ -119,7 +119,7 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
                 ).queue()
             }
 
-            val arguments = Arguments(finalCommand, args)
+            val arguments = Arguments(sarano, finalCommand, args)
 
             if (arguments.parsedArguments.size < finalCommand.arguments.filter { arg -> !arg.optional }.size) {
 
@@ -135,10 +135,11 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
                 event.channel.sendMessage(builder.build()).queue()
 
                 return@getCommand
+
             }
 
             val context = CommandContext(
-                event.member!!, event.channel, event.message,
+                sarano, event.member!!, event.channel, event.message,
                 event.guild, arguments.parsedArguments, false, null, debug
             )
 
@@ -198,7 +199,7 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
             }
 
             val context = CommandContext(
-                event.member!!, event.channel as TextChannel, null,
+                sarano, event.member!!, event.channel as TextChannel, null,
                 event.guild!!, arguments, true, event, sarano.debug
             )
 

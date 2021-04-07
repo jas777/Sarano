@@ -2,14 +2,13 @@ package com.sarano.modules.core.commands
 
 import com.sarano.command.Command
 import com.sarano.command.CommandContext
+import com.sarano.command.CommandHandler
 import com.sarano.command.argument.CommandArgument
-import com.sarano.main.Sarano
 import com.sarano.module.Module
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Command.OptionType
 
-class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
+class HelpCommand(commandHandler: CommandHandler) : Command {
 
     override val name: String = "help"
     override val description: String = "Provides explanation on how to use commands and/or modules"
@@ -30,15 +29,15 @@ class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
                 *mutableListOf<Pair<String, Any>>(Pair("help", "help"))
                     .apply {
 
-                        addAll((sarano.commandHandler.commands.filter { !it.ownerOnly }.map {
+                        addAll((commandHandler.commands.filter { !it.ownerOnly }.map {
                             Pair(it.name, it.name)
                         }))
 
                         addAll(
-                            sarano.modules.map { Pair("(Module) ${it.name}", it.name) }
+                            commandHandler.sarano.modules.map { Pair("(Module) ${it.name}", it.name) }
                         )
 
-                        sarano.logger.debug { joinToString(" ") { it.first } }
+                        commandHandler.sarano.logger.debug { joinToString(" ") { it.first } }
 
                     }.toTypedArray()
             )
@@ -49,10 +48,10 @@ class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
 
         ctx.debug(ctx.args.map { "${it.key} - ${it.value.result}" }.joinToString(" "))
 
-        var builder = sarano.defaultEmbed()
+        var builder = ctx.sarano.defaultEmbed()
 
         if (ctx.args["command_or_module"] == null) {
-            defaultHelp(builder)
+            defaultHelp(ctx, builder)
             ctx.reply(builder.build())
             return
         }
@@ -61,7 +60,7 @@ class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
 
         ctx.debug("Input: $input")
 
-        val command = sarano.commandHandler.getCommand(input)
+        val command = ctx.sarano.commandHandler.getCommand(input)
 
         builder = when {
 
@@ -69,12 +68,12 @@ class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
                 commandHelp(command, builder)
             }
 
-            sarano.modules.map { it.name }.contains(input) -> {
-                moduleHelp(sarano.modules.find { it.name == input }!!, builder)
+            ctx.sarano.modules.map { it.name }.contains(input) -> {
+                moduleHelp(ctx.sarano.modules.find { it.name == input }!!, builder)
             }
 
             else -> {
-                defaultHelp(builder)
+                defaultHelp(ctx, builder)
             }
 
         }
@@ -112,7 +111,7 @@ class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
 
     private fun moduleHelp(module: Module, builder: EmbedBuilder): EmbedBuilder {
 
-        val moduleCommands = sarano.commandHandler.commands.filter { it.module?.name == module.name }
+        val moduleCommands = module.commands
 
         builder
             .setTitle("Module help - ${module.name}")
@@ -132,10 +131,10 @@ class HelpCommand(sarano: Sarano, module: Module) : Command(sarano, module) {
         return builder
     }
 
-    private fun defaultHelp(builder: EmbedBuilder): EmbedBuilder {
+    private fun defaultHelp(ctx: CommandContext, builder: EmbedBuilder): EmbedBuilder {
 
         builder
-            .setTitle("${sarano.client.shards.first().selfUser.name} - help")
+            .setTitle("${ctx.sarano.client.shards.first().selfUser.name} - help")
             .setDescription("")
 
         return builder

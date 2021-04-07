@@ -1,6 +1,7 @@
 package com.sarano.command.argument
 
 import com.sarano.command.Command
+import com.sarano.command.CommandContext
 import com.sarano.main.Sarano
 import java.util.*
 
@@ -9,7 +10,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 @Suppress("UNCHECKED_CAST")
-class Arguments(val command: Command, val args: List<String>) {
+class Arguments(val sarano: Sarano, val command: Command, val args: List<String>) {
 
     var parsedArguments: HashMap<String, ParsedArgument<*>> = HashMap()
 
@@ -37,7 +38,7 @@ class Arguments(val command: Command, val args: List<String>) {
             if (commandArgument.length == null) {
 
                 parsedResult =
-                    translateOption(commandArgument.type).parseMethod(command.sarano, args[indexedArgument])
+                    translateOption(commandArgument.type).parseMethod(sarano, args[indexedArgument])
 
                 if (parsedResult != null) {
 
@@ -62,7 +63,7 @@ class Arguments(val command: Command, val args: List<String>) {
                     if (args.size <= indexedArgument + argIndex) break
 
                     val result = translateOption(commandArgument.type)
-                        .parseMethod(command.sarano, args[indexedArgument + argIndex])
+                        .parseMethod(sarano, args[indexedArgument + argIndex])
 
                     result?.let {
                         resultList.add(result)

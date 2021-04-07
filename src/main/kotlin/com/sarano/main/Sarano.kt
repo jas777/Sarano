@@ -94,7 +94,10 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
         // Module init
 
-        modules.forEach { it.setup() }
+        modules.forEach {
+            it.setup()
+            commandHandler.registerCommands(*it.commands)
+        }
 
         // Shard manager setup
 
