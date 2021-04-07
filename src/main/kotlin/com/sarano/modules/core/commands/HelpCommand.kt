@@ -20,8 +20,6 @@ class HelpCommand(commandHandler: CommandHandler) : Command {
     // Debugging was fun :)
     // override val userPermissions: Array<Permission> = arrayOf(Permission.ADMINISTRATOR)
 
-    // override val botPermissions: Array<Permission> = arrayOf(Permission.ADMINISTRATOR, Permission.BAN_MEMBERS)
-
     override val arguments: Array<CommandArgument> = arrayOf(
         CommandArgument(
             "command_or_module", "The module or command you want to get more information about",

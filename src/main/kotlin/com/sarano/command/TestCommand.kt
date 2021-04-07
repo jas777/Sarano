@@ -36,8 +36,4 @@ class TestCommand : Command {
 
     }
 
-//    override fun executeSlash(event: SlashCommandEvent) {
-//        event.reply().queue()
-//    }
-
 }

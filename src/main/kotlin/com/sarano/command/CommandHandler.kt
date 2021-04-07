@@ -161,26 +161,25 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
                 val commandArgument = it.arguments.find { arg -> arg.name == option.name }
 
-                val result: Optional<*> = when (option.type) {
+                val result: Any? = when (option.type) {
 
                     OptionType.STRING -> {
                         if (commandArgument?.length == null) {
-                            Optional.of(option.asString)
+                            option.asString
                         } else {
-                            Optional.of(option.asString.split(" "))
+                            option.asString.split(" ")
                         }
                     }
 
-                    OptionType.INTEGER -> Optional.of(option.asLong)
+                    OptionType.INTEGER -> option.asLong
 
-                    OptionType.BOOLEAN -> Optional.of(option.asBoolean)
+                    OptionType.BOOLEAN -> option.asBoolean
 
-                    OptionType.USER -> if (option.asUser != null) Optional.of(option.asUser!!) else Optional.empty()
+                    OptionType.USER -> option.asUser
 
-                    OptionType.CHANNEL -> if (option.asGuildChannel != null) Optional.of(option.asGuildChannel!!)
-                    else Optional.empty()
+                    OptionType.CHANNEL -> option.asGuildChannel
 
-                    OptionType.ROLE -> if (option.asRole != null) Optional.of(option.asRole!!) else Optional.empty()
+                    OptionType.ROLE -> option.asRole
 
                     OptionType.SUB_COMMAND -> TODO()
 

@@ -59,13 +59,4 @@ class EvalCommand : Command {
 
     }
 
-//    override fun executeSlash(event: SlashCommandEvent) {
-//
-//        event.getOption("code")?.asString
-//            ?.replace("kt", "")?.replace("`", "")?.let {
-//                eval(it, event.textChannel, event.member, slash = true, event)
-//            }
-//
-//    }
-
 }

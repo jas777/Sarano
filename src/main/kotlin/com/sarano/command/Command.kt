@@ -28,6 +28,4 @@ interface Command {
 
     fun execute(ctx: CommandContext)
 
-    // abstract fun executeSlash(event: SlashCommandEvent)
-
 }

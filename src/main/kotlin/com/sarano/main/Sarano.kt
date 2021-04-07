@@ -1,11 +1,10 @@
 package com.sarano.main
 
 import com.sarano.command.CommandHandler
-import com.sarano.command.TestCommand
 import com.sarano.config.Configuration
 import com.sarano.module.Module
-import com.sarano.modules.core.CoreModule
-import com.sarano.modules.dev.DevModule
+import com.sarano.modules.core.commands.HelpCommand
+import com.sarano.modules.dev.commands.EvalCommand
 import me.grison.jtoml.impl.Toml
 import mu.KLogger
 import mu.toKLogger
@@ -81,7 +80,10 @@ class Sarano constructor(config: String, val debug: Boolean) {
         // Module registration
 
         modules.addAll(
-            listOf(DevModule(), CoreModule(this))
+            listOf(
+                Module("dev", "Dev module", arrayOf(EvalCommand()), emptyArray()),
+                Module("core", "Contains all essential commands", arrayOf(HelpCommand(commandHandler)), emptyArray())
+            )
         )
 
         // Command registration (!DEV ONLY, USE MODULES!)
@@ -95,8 +97,8 @@ class Sarano constructor(config: String, val debug: Boolean) {
         // Module init
 
         modules.forEach {
-            it.setup()
             commandHandler.registerCommands(*it.commands)
+            client.addEventListener(*it.listeners)
         }
 
         // Shard manager setup
