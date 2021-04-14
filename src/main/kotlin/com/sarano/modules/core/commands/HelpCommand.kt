@@ -23,22 +23,7 @@ class HelpCommand(private val commandHandler: CommandHandler) : Command {
     override val arguments: Array<CommandArgument> = arrayOf(
         CommandArgument(
             "command_or_module", "The module or command you want to get more information about",
-            OptionType.STRING, true, choices = hashMapOf(
-                *mutableListOf<Pair<String, Any>>(Pair("help", "help"))
-                    .apply {
-
-                        addAll((commandHandler.commands.filter { !it.ownerOnly }.map {
-                            Pair(it.name, it.name)
-                        }))
-
-                        addAll(
-                            commandHandler.sarano.modules.map { Pair("(Module) ${it.name}", it.name) }
-                        )
-
-                        commandHandler.sarano.logger.debug { joinToString(" ") { it.first } }
-
-                    }.toTypedArray()
-            )
+            OptionType.STRING, true
         )
     )
 
@@ -82,6 +67,9 @@ class HelpCommand(private val commandHandler: CommandHandler) : Command {
 
     private fun commandHelp(command: Command, builder: EmbedBuilder): EmbedBuilder {
 
+        val joint = command.arguments.joinToString("\n")
+        { "`${if (it.optional) "[${it.name}]" else "<${it.name}>"}` - ${it.description}" }
+
         builder
             .setTitle("Command help - ${command.name}")
             .setDescription("""
@@ -91,12 +79,15 @@ class HelpCommand(private val commandHandler: CommandHandler) : Command {
                 if (command.aliases.isEmpty()) "None..." else "`${command.aliases.joinToString("`, `")}`"
             }
                 
+                **Usage:**
+                `${command.name} ${
+                command.arguments.joinToString(" ")
+                { if (it.optional) "[${it.name}]" else "<${it.name}>" }
+            }`
+                
                 **Arguments**
                 
-                ${
-                command.arguments.joinToString("\n")
-                { "`${if (it.optional) "[${it.name}]" else "<${it.name}>"}` - ${it.description}" }
-            }
+                ${joint.ifEmpty { "_None..._" }}
                     
                 `[name]` - Optional argument
                 `<name>` - Required argument
@@ -123,7 +114,7 @@ class HelpCommand(private val commandHandler: CommandHandler) : Command {
                     else "None..."
                 }
                 
-            """.trimIndent()
+                """.trimIndent()
             )
 
         return builder

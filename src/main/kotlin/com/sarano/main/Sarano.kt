@@ -5,6 +5,7 @@ import com.sarano.command.TestCommand
 import com.sarano.config.Configuration
 import com.sarano.module.Module
 import com.sarano.modules.core.commands.HelpCommand
+import com.sarano.modules.core.commands.PingCommand
 import com.sarano.modules.dev.commands.EvalCommand
 import me.grison.jtoml.impl.Toml
 import mu.KLogger
@@ -35,7 +36,11 @@ fun main(args: Array<String>) {
                 listOf(
                     Module("dev", "Dev module", arrayOf(EvalCommand()), emptyArray()),
                     Module(
-                        "core", "Contains all essential commands", arrayOf(HelpCommand(commandHandler)),
+                        "core", "Contains all essential commands",
+                        arrayOf(
+                            HelpCommand(commandHandler),
+                            PingCommand()
+                        ),
                         arrayOf(commandHandler)
                     )
                 )
@@ -140,6 +145,11 @@ class Sarano constructor(config: String, val debug: Boolean) {
             logger.error { "Invalid embed color!" }
             Color.WHITE
         }
+    }
+
+    operator fun plus(sarano: Sarano): Sarano {
+        logger.info { "AAaaa" }
+        return sarano
     }
 
 }

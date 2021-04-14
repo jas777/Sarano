@@ -47,7 +47,7 @@ class EvalCommand : Command {
             builder.setTitle("Eval result").setDescription(
                 "```${
                     result?.toString()
-                        ?.replace(ctx.sarano.client.shards.first().token, "<TOKEN>") ?: "void"
+                        ?.replace(ctx.channel.jda.token, "<TOKEN>") ?: "void"
                 }```"
             )
         } else {

@@ -15,7 +15,7 @@ class TestCommand : Command {
     override val arguments: Array<CommandArgument> = arrayOf(
         CommandArgument(
             "number", "testing parser 1", OptionType.INTEGER, false,
-            choices = hashMapOf(Pair("One", 1), Pair("Two", 2), Pair("Triple seven", 777))
+            choices = hashMapOf(Pair("One", 1L), Pair("Two", 2L), Pair("Triple seven", 777L))
         ),
         CommandArgument("optional", "testing parser 2", OptionType.INTEGER, true),
         CommandArgument(

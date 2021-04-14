@@ -40,6 +40,10 @@ class Arguments {
 
                 if (parsedResult != null) {
 
+                    if (commandArgument.choices.size > 0 && commandArgument.choices.none { it.value == parsedResult }) {
+                        break
+                    }
+
                     indexedArgument++
                     parsedArguments[commandArgument.name] = ParsedArgument(commandArgument, parsedResult)
 
@@ -55,8 +59,8 @@ class Arguments {
 
                 val resultList: MutableList<Any> = ArrayList()
 
-                for (argIndex in 0 until if (commandArgument.length == -1) args.size - indexedArgument else
-                    commandArgument.length) {
+                for (argIndex in 0 until (if (commandArgument.length!! == -1) args.size - indexedArgument else
+                    commandArgument.length)!!) {
 
                     if (args.size <= indexedArgument + argIndex) break
 
@@ -70,6 +74,12 @@ class Arguments {
 
                     if (result == null) break
 
+                }
+
+                if (commandArgument.choices.size > 0 &&
+                    commandArgument.choices.none { it.value == resultList.joinToString(" ") }
+                ) {
+                    break
                 }
 
                 indexedArgument += matchingArguments
