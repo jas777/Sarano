@@ -14,7 +14,7 @@ plugins {
 //}
 
 group = "com.sarano"
-version = "0.0.2b"
+version = "0.0.3"
 
 repositories {
     mavenCentral()
