@@ -57,6 +57,8 @@ dependencies {
 
     api("org.jetbrains.exposed:exposed-core:0.29.1")
     implementation("com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.7")
+    implementation("com.zaxxer:HikariCP:4.0.3")
+    implementation("io.netty:netty-all:4.1.63.Final")
 
     implementation("me.grison:jtoml:1.0.0")
     implementation(kotlin("stdlib-jdk8"))

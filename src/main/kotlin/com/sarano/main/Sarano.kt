@@ -3,6 +3,7 @@ package com.sarano.main
 import com.sarano.command.CommandHandler
 import com.sarano.command.TestCommand
 import com.sarano.config.Configuration
+import com.sarano.database.SaranoDatabase
 import com.sarano.module.Module
 import com.sarano.modules.core.commands.HelpCommand
 import com.sarano.modules.core.commands.PingCommand
@@ -68,6 +69,8 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
     val modules: MutableList<Module> = ArrayList()
 
+    val database: SaranoDatabase
+
     init {
 
         // Fetching configuration
@@ -99,6 +102,8 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
             configuration = Toml.parse(configFile).getAs("bot", Configuration::class.java)
             logger.info { "Configuration loaded successfully!" }
+
+            database = SaranoDatabase(configuration)
 
         }
 
