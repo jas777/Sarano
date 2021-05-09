@@ -12,13 +12,13 @@ class SaranoDatabase constructor(configuration: Configuration) {
 
     init {
 
-        val props = Properties()
-        props.setProperty("dataSourceClassName", "com.impossibl.postgres.jdbc.PGDataSource")
-        props.setProperty("dataSource.databaseName", configuration.database)
-        props.setProperty("dataSource.serverName", configuration.ip)
-        props.setProperty("dataSource.portNumber", configuration.port.toString())
+        val config = HikariConfig()
 
-        val config = HikariConfig(props)
+        config.dataSourceClassName = "com.impossibl.postgres.jdbc.PGDataSource"
+
+        config.addDataSourceProperty("databaseName", configuration.database)
+        config.addDataSourceProperty("serverName", configuration.ip)
+        config.addDataSourceProperty("portNumber", configuration.port!!.toInt())
 
         config.username = configuration.user
         config.password = configuration.password

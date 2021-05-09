@@ -107,6 +107,8 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
     fun start() {
 
+
+        val db = SaranoDatabase(configuration)
         // Shard manager setup
 
         client = DefaultShardManagerBuilder

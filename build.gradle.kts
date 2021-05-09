@@ -14,7 +14,7 @@ plugins {
 //}
 
 group = "com.sarano"
-version = "0.0.3d"
+version = "0.0.3e"
 
 repositories {
     mavenCentral()
@@ -40,6 +40,8 @@ publishing {
     }
 }
 
+val exposedVersion: String by project
+
 dependencies {
 
     testImplementation(kotlin("test-junit5"))
@@ -55,7 +57,10 @@ dependencies {
     api("ch.qos.logback:logback-classic:1.3.0-alpha5")
     api("org.slf4j:slf4j-api:2.0.0-alpha1")
 
-    api("org.jetbrains.exposed:exposed-core:0.29.1")
+    api("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    api("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    api("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+
     implementation("com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.7")
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("io.netty:netty-all:4.1.63.Final")
