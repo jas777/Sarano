@@ -1,10 +1,10 @@
 package com.sarano.database
 
 import com.sarano.config.Configuration
-import com.sarano.main.Sarano
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.jetbrains.exposed.sql.Database
+import java.util.*
 
 class SaranoDatabase constructor(configuration: Configuration) {
 
@@ -12,12 +12,16 @@ class SaranoDatabase constructor(configuration: Configuration) {
 
     init {
 
-        val config = HikariConfig()
+        val props = Properties()
+        props.setProperty("dataSourceClassName", "com.impossibl.postgres.jdbc.PGDataSource")
+        props.setProperty("dataSource.databaseName", configuration.database)
+        props.setProperty("dataSource.serverName", configuration.ip)
+        props.setProperty("dataSource.portNumber", configuration.port.toString())
 
-        config.jdbcUrl = "jdbc:pgsql://${configuration.url}"
+        val config = HikariConfig(props)
+
         config.username = configuration.user
         config.password = configuration.password
-        config.dataSourceClassName = "com.impossibl.postgres.jdbc.PGDataSource"
 
         val hikariDataSource = HikariDataSource(config)
 

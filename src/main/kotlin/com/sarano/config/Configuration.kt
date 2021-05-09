@@ -21,7 +21,9 @@ class Configuration {
 
     // Database settings
 
-    val url: String = ""
+    val ip: String = ""
+    val port: Int = 5432
+    val database: String = ""
     val user: String = ""
     val password: String = ""
 
