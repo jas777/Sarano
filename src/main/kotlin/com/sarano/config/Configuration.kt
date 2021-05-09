@@ -22,7 +22,7 @@ class Configuration {
     // Database settings
 
     val ip: String = ""
-    val port: Int = 5432
+    val port: Long? = 0L
     val database: String = ""
     val user: String = ""
     val password: String = ""
