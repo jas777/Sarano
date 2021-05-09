@@ -69,8 +69,6 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
     val modules: MutableList<Module> = ArrayList()
 
-    val database: SaranoDatabase
-
     init {
 
         // Fetching configuration
@@ -102,8 +100,6 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
             configuration = Toml.parse(configFile).getAs("bot", Configuration::class.java)
             logger.info { "Configuration loaded successfully!" }
-
-            database = SaranoDatabase(configuration)
 
         }
 
