@@ -8,6 +8,7 @@ import com.sarano.module.Module
 import com.sarano.modules.core.commands.HelpCommand
 import com.sarano.modules.core.commands.PingCommand
 import com.sarano.modules.dev.commands.EvalCommand
+import com.sarano.util.MessageWaiter
 import me.grison.jtoml.impl.Toml
 import mu.KLogger
 import mu.toKLogger
@@ -112,6 +113,7 @@ class Sarano constructor(config: String, val debug: Boolean) {
         client = DefaultShardManagerBuilder
             .createDefault(configuration.token)
             .enableIntents(GatewayIntent.GUILD_MEMBERS)
+            .addEventListeners(MessageWaiter())
             .build()
 
         // Module init
@@ -146,11 +148,6 @@ class Sarano constructor(config: String, val debug: Boolean) {
             logger.error { "Invalid embed color!" }
             Color.WHITE
         }
-    }
-
-    operator fun plus(sarano: Sarano): Sarano {
-        logger.info { "AAaaa" }
-        return sarano
     }
 
 }

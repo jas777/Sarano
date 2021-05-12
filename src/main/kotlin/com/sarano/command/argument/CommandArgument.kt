@@ -1,11 +1,10 @@
 package com.sarano.command.argument
 
-import net.dv8tion.jda.api.entities.Command
-import java.util.*
+import net.dv8tion.jda.api.interactions.commands.OptionType
 import kotlin.collections.HashMap
 
 data class CommandArgument(
-    val name: String, val description: String, val type: Command.OptionType,
+    val name: String, val description: String, val type: OptionType,
     val optional: Boolean, var length: Int? = null, val choices: HashMap<String, Any> = hashMapOf()
 ) {
 
@@ -15,7 +14,7 @@ data class CommandArgument(
 
             var longest = 0
 
-            if (this.type == Command.OptionType.STRING) {
+            if (this.type == OptionType.STRING) {
 
                 choices.forEach {
                     if ((it.value as String).length > longest) longest = (it.value as String).split(" ").size

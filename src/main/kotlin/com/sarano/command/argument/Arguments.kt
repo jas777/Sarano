@@ -2,8 +2,8 @@ package com.sarano.command.argument
 
 import com.sarano.command.Command
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.interactions.commands.OptionType
 
-import net.dv8tion.jda.api.entities.Command.OptionType
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
@@ -113,7 +113,7 @@ class Arguments {
 
     fun stringList(argument: String): List<String> = this[argument] as List<String>
 
-    fun integer(argument: String): Int = this[argument] as Int
+    fun integer(argument: String): Int = (this[argument] as Long).toInt()
 
     fun long(argument: String): Long = this[argument] as Long
 

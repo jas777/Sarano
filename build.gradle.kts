@@ -14,12 +14,16 @@ plugins {
 //}
 
 group = "com.sarano"
-version = "0.0.3f"
+version = "0.0.4"
 
 repositories {
     mavenCentral()
     jcenter()
     maven { setUrl("https://jitpack.io") }
+    maven {
+        name = "m2-dv8tion"
+        url = uri("https://m2.dv8tion.net/releases")
+    }
 }
 
 publishing {
@@ -51,7 +55,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-scripting-jsr223:1.4.10")
 
     // implementation("net.dv8tion:JDA:4.2.0_240")
-    api("com.github.DV8FromTheWorld:JDA:40f94ae")
+    api("com.github.DV8FromTheWorld:JDA:5951675")
 
     api("io.github.microutils:kotlin-logging-jvm:2.0.6")
     api("ch.qos.logback:logback-classic:1.3.0-alpha5")
@@ -60,13 +64,18 @@ dependencies {
     api("org.jetbrains.exposed:exposed-core:$exposedVersion")
     api("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     api("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    api("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
+
+    api("com.jagrosh:jda-utilities:2.1")
 
     implementation("com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.7")
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("io.netty:netty-all:4.1.63.Final")
 
     implementation("me.grison:jtoml:1.0.0")
+
     implementation(kotlin("stdlib-jdk8"))
+
 }
 
 tasks.test {

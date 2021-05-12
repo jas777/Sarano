@@ -6,7 +6,7 @@ import com.sarano.command.CommandHandler
 import com.sarano.command.argument.CommandArgument
 import com.sarano.module.Module
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.Command.OptionType
+import net.dv8tion.jda.api.interactions.commands.OptionType
 
 class HelpCommand(private val commandHandler: CommandHandler) : Command {
 
@@ -124,7 +124,8 @@ class HelpCommand(private val commandHandler: CommandHandler) : Command {
 
         builder
             .setTitle("${ctx.sarano.client.shards.first().selfUser.name} - help")
-            .setDescription("")
+            .setDescription("Hi! My name is **${ctx.channel.jda.selfUser.name}**! To get more information about a module" +
+                    "or a command, use `${ctx.sarano.configuration.prefix}help [command _or_ module] :D`")
 
         return builder
     }

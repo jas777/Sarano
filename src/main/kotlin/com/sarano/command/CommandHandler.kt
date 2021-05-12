@@ -13,7 +13,9 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
-import net.dv8tion.jda.api.entities.Command.OptionType
+import net.dv8tion.jda.api.interactions.commands.OptionType
+import net.dv8tion.jda.api.interactions.commands.build.CommandData
+import net.dv8tion.jda.api.interactions.commands.build.OptionData
 
 class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
@@ -174,11 +176,11 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
                         OptionType.BOOLEAN -> option.asBoolean
 
-                        OptionType.USER -> option.asUser ?: error("Unresolved user")
+                        OptionType.USER -> option.asUser
 
-                        OptionType.CHANNEL -> option.asGuildChannel ?: error("Unresolved channel")
+                        OptionType.CHANNEL -> option.asGuildChannel
 
-                        OptionType.ROLE -> option.asRole ?: error("Unresolved role")
+                        OptionType.ROLE -> option.asRole
 
                         OptionType.SUB_COMMAND -> TODO()
 
@@ -263,17 +265,17 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
         for (command in commands.filter { it.canSlash }) {
 
-            val slashCommand = CommandUpdateAction.CommandData(command.name, command.description)
+            val slashCommand = CommandData(command.name, command.description)
 
             for (argument in command.arguments.sortedBy { it.optional }) {
                 slashCommand.addOption(
-                    CommandUpdateAction.OptionData(argument.type, argument.name, argument.description)
+                    OptionData(argument.type, argument.name, argument.description)
                         .setRequired(!argument.optional).apply {
                             for (choice in argument.choices) {
 
                                 when (choice.value) {
-                                    is Int -> {
-                                        addChoice(choice.key, choice.value as Int)
+                                    is Long -> {
+                                        addChoice(choice.key, (choice.value as Long).toInt())
                                     }
                                     is String -> {
                                         addChoice(choice.key, choice.value as String)
