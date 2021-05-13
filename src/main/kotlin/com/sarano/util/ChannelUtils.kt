@@ -7,19 +7,21 @@ import java.util.concurrent.TimeUnit
 
 fun TextChannel.input(text: String, user: User, action: (GuildMessageReceivedEvent) -> Unit) {
 
-    sendMessage(text).queue()
-
-    getWaiter(jda)!!.waitForGuildMessageReceived(
-        {
-            event -> event.author.id == user.id &&
-                event.channel.id == id
-        },
-        action,
-        30,
-        TimeUnit.SECONDS,
-        {
-            sendMessage("Input timed out!").queue()
-        }
-    )
+    sendMessage(text).queue() {
+        getWaiter(jda)!!.waitForGuildMessageReceived(
+            {
+                    event -> event.author.id == user.id &&
+                    event.channel.id == id &&
+                    event.author.id != jda.selfUser.id &&
+                    event.message.id > it.id
+            },
+            action,
+            30,
+            TimeUnit.SECONDS,
+            {
+                sendMessage("Input timed out!").queue()
+            }
+        )
+    }
 
 }
