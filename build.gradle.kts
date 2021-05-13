@@ -14,7 +14,7 @@ plugins {
 //}
 
 group = "com.sarano"
-version = "0.0.4"
+version = "0.0.4b"
 
 repositories {
     mavenCentral()
@@ -66,7 +66,7 @@ dependencies {
     api("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     api("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 
-    api("com.jagrosh:jda-utilities:2.1")
+    api("com.jagrosh:jda-utilities:3.0.5")
 
     implementation("com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.7")
     implementation("com.zaxxer:HikariCP:4.0.3")
