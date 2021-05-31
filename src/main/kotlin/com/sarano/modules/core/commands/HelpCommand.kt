@@ -30,6 +30,8 @@ class HelpCommand(private val commandHandler: CommandHandler) : Command {
 
     override fun execute(ctx: CommandContext) {
 
+        if (ctx.slash) ctx.slashEvent!!.deferReply(true).queue()
+
         ctx.debug(ctx.args.parsedArguments.map { "${it.key} - ${it.value.result}" }.joinToString(" "))
 
         var builder = ctx.sarano.defaultEmbed()

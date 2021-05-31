@@ -4,6 +4,8 @@ import com.sarano.command.argument.CommandArgument
 import com.sarano.main.Sarano
 import net.dv8tion.jda.api.Permission
 import com.sarano.module.Module
+import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 
 interface Command {
@@ -27,5 +29,12 @@ interface Command {
     val canSlash: Boolean get() = false
 
     fun execute(ctx: CommandContext)
+
+    fun handleButtonClick(
+        event: ButtonClickEvent, buttonId: String, sender: User, originalUser: String,
+        arguments: Array<String>
+    ) {
+        error("This command cannot handle button clicks")
+    }
 
 }

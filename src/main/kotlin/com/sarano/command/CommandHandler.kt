@@ -4,24 +4,26 @@ import com.sarano.command.argument.Arguments
 import com.sarano.command.argument.CommandArgument
 import com.sarano.command.argument.ParsedArgument
 import com.sarano.main.Sarano
+import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction
 import net.dv8tion.jda.api.events.ReadyEvent
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
 
 class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
     val commands: MutableList<Command> = mutableListOf()
 
-    lateinit var slashRegistry: CommandUpdateAction
+    lateinit var slashRegistry: CommandListUpdateAction
 
     init {
         sarano.logger.info { "Command handler registered successfully" }
@@ -208,8 +210,31 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
             }
 
         } catch (error: Error) {
-            event.reply(sarano.errorEmbed().setDescription("${error.message}\n\nPlease contact support")
-                .build()).queue()
+            event.reply(
+                MessageBuilder().setEmbed(
+                    sarano.errorEmbed().setDescription("${error.message}\n\nPlease contact support")
+                        .build()
+                ).build()
+            ).queue()
+        }
+
+    }
+
+    override fun onButtonClick(event: ButtonClickEvent) {
+
+        val id = event.componentId
+
+        val splitId = id.split(":")
+
+        if (splitId.last().endsWith(":")) splitId.last().dropLast(1)
+
+        val commandName = splitId[0]
+        val buttonName = splitId[1]
+        val originalUser = splitId[2]
+        val arguments = splitId.drop(3)
+
+        getCommand(commandName, ownerOnly = true) {
+            it.handleButtonClick(event, buttonName, event.user, originalUser, arguments.toTypedArray())
         }
 
     }
@@ -263,12 +288,16 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
     private fun registerSlash() {
 
+        val commandsToAdd = mutableListOf<CommandData>()
+
         for (command in commands.filter { it.canSlash }) {
 
             val slashCommand = CommandData(command.name, command.description)
 
+            val options: MutableList<OptionData> = mutableListOf()
+
             for (argument in command.arguments.sortedBy { it.optional }) {
-                slashCommand.addOption(
+                options.add(
                     OptionData(argument.type, argument.name, argument.description)
                         .setRequired(!argument.optional).apply {
                             for (choice in argument.choices) {
@@ -291,14 +320,19 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
                 )
             }
 
+            slashCommand.addOptions(options)
+
             slashRegistry.addCommands(
                 slashCommand
             )
+
+            commandsToAdd.add(slashCommand)
         }
 
-        for (guild in sarano.client.guilds) {
-            guild.updateCommands().queue()
-        }
+//        for (guild in sarano.client.guildCache) {
+//            guild.updateCommands().queue()
+//            guild.updateCommands().addCommands(commandsToAdd).queue()
+//        }
 
         slashRegistry.queue()
 

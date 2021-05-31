@@ -20,6 +20,8 @@ class EvalCommand : Command {
 
     override fun execute(ctx: CommandContext) {
 
+        if (ctx.slash) ctx.slashEvent!!.deferReply().queue()
+
         val code = (ctx.args.stringList("code"))
             .joinToString(" ")
             .replace("kt", "")

@@ -36,7 +36,7 @@ fun main(args: Array<String>) {
 
             modules.addAll(
                 listOf(
-                    Module("dev", "Dev module", arrayOf(EvalCommand()), emptyArray()),
+                    Module("dev", "Dev module", arrayOf(EvalCommand(), TestCommand()), emptyArray()),
                     Module(
                         "core", "Contains all essential commands",
                         arrayOf(
@@ -50,7 +50,7 @@ fun main(args: Array<String>) {
 
             // Command registration (!DEV ONLY, USE MODULES!)
 
-            commandHandler.registerCommands(TestCommand())
+//            commandHandler.registerCommands(TestCommand())
 
         }.start()
 

@@ -14,7 +14,7 @@ plugins {
 //}
 
 group = "com.sarano"
-version = "0.0.4c"
+version = "0.0.5"
 
 repositories {
     mavenCentral()
@@ -55,7 +55,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-scripting-jsr223:1.4.10")
 
     // implementation("net.dv8tion:JDA:4.2.0_240")
-    api("com.github.DV8FromTheWorld:JDA:5951675")
+    api("com.github.DV8FromTheWorld:JDA:1fdcaa54bfe88fb5b60c9c1e935f29875cbca21e")
 
     api("io.github.microutils:kotlin-logging-jvm:2.0.6")
     api("ch.qos.logback:logback-classic:1.3.0-alpha5")
