@@ -52,7 +52,7 @@ fun main(args: Array<String>) {
 
 //            commandHandler.registerCommands(TestCommand())
 
-        }.start()
+        }.start(listOf(GatewayIntent.GUILD_MEMBERS))
 
     }
 
@@ -106,13 +106,13 @@ class Sarano constructor(config: String, val debug: Boolean) {
 
     }
 
-    fun start() {
+    fun start(intents: Collection<GatewayIntent>) {
 
         // Shard manager setup
 
         client = DefaultShardManagerBuilder
             .createDefault(configuration.token)
-            .enableIntents(GatewayIntent.GUILD_MEMBERS)
+            .enableIntents(intents)
             .addEventListeners(MessageWaiter())
             .build()
 
