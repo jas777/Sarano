@@ -43,7 +43,7 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
         if (!event.guild.getMember(event.jda.selfUser)?.hasPermission(event.channel, Permission.MESSAGE_WRITE)!!)
             return
 
-        val messageWithoutPrefix: List<String> = event.message.contentDisplay.split(prefix)[1].split(" ")
+        val messageWithoutPrefix: List<String> = event.message.contentRaw.split(prefix)[1].split(" ")
 
         val command = messageWithoutPrefix[0]
 
