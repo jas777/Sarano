@@ -55,7 +55,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-scripting-jsr223:1.4.10")
 
     // implementation("net.dv8tion:JDA:4.2.0_240")
-    api("net.dv8tion:JDA:4.3.0_299") {
+    api("net.dv8tion:JDA:4.3.0_340") {
         exclude(module = "opus-java")
     }
 
