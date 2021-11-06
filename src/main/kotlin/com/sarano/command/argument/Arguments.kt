@@ -2,6 +2,7 @@ package com.sarano.command.argument
 
 import com.sarano.command.Command
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.interactions.commands.OptionType
 
 import kotlin.collections.ArrayList
@@ -99,6 +100,7 @@ class Arguments {
             OptionType.STRING -> ArgumentMethods.STRING
             OptionType.INTEGER -> ArgumentMethods.INTEGER
             OptionType.BOOLEAN -> ArgumentMethods.BOOLEAN
+            OptionType.USER -> ArgumentMethods.USER
             else -> error("Invalid option!")
         }
     }
@@ -140,6 +142,15 @@ enum class ArgumentMethods constructor(val parseMethod: (jda: JDA, rawArgument: 
     BOOLEAN(
         fun(_: JDA, rawArgument: String): Boolean {
             return rawArgument.equals("true", ignoreCase = true)
+        }
+    ),
+
+    USER(
+        fun(jda: JDA, rawArgument: String): User? {
+            return jda.getUserById(rawArgument) ?: (jda.getUserByTag(rawArgument) ?: jda.getUsersByName(
+                rawArgument,
+                true
+            ).first())
         }
     )
 
