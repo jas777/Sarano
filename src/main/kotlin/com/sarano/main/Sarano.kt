@@ -29,11 +29,9 @@ fun main(args: Array<String>) {
         println("Please supply the config path!")
         exitProcess(1)
     } else {
-
-        Sarano(args[0], args.size > 1).apply {
+        Sarano(args[0], true).apply {
 
             // Module registration
-
             modules.addAll(
                 listOf(
                     Module("dev", "Dev module", arrayOf(EvalCommand(), TestCommand()), emptyArray()),
@@ -49,67 +47,49 @@ fun main(args: Array<String>) {
             )
 
             // Command registration (!DEV ONLY, USE MODULES!)
-
 //            commandHandler.registerCommands(TestCommand())
-
-        }.start(listOf(GatewayIntent.GUILD_MEMBERS))
-
+        }.start(emptyList())
     }
-
 }
 
 class Sarano constructor(config: String, val debug: Boolean) {
 
     var configuration: Configuration
-
     val logger: KLogger = LoggerFactory.getLogger("main").toKLogger()
 
     lateinit var client: ShardManager
 
     val commandHandler: CommandHandler = CommandHandler(this)
-
     val modules: MutableList<Module> = ArrayList()
 
     init {
 
         // Fetching configuration
-
         val configFile = File(config)
 
         logger.debug { "Running in debug mode..." }
         logger.debug { "Started config initialization (Path $config)" }
 
         if (!configFile.exists()) {
-
             try {
-
                 configFile.createNewFile()
-
                 configFile.writeText(Toml.serialize("bot", Configuration()))
 
                 logger.info { "Created an empty config file - please re-run after filling all fields" }
                 exitProcess(0)
-
             } catch (exception: IOException) {
-
                 logger.error { exception.message }
                 exitProcess(1)
-
             }
-
         } else {
-
             configuration = Toml.parse(configFile).getAs("bot", Configuration::class.java)
             logger.info { "Configuration loaded successfully!" }
-
         }
-
     }
 
     fun start(intents: Collection<GatewayIntent>) {
 
         // Shard manager setup
-
         client = DefaultShardManagerBuilder
             .createDefault(configuration.token)
             .enableIntents(intents)
@@ -117,12 +97,10 @@ class Sarano constructor(config: String, val debug: Boolean) {
             .build()
 
         // Module init
-
         modules.forEach {
             commandHandler.registerCommands(*it.commands)
             client.addEventListener(*it.listeners)
         }
-
     }
 
     fun defaultEmbed(): EmbedBuilder {

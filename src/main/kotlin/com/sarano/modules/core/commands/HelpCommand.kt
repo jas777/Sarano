@@ -32,7 +32,11 @@ class HelpCommand(private val commandHandler: CommandHandler) : Command {
 
         if (ctx.slash) ctx.slashEvent!!.deferReply(true).queue()
 
-        ctx.debug(ctx.args.parsedArguments.map { "${it.key} - ${it.value.result}" }.joinToString(" "))
+        ctx.debug(
+            "Arguments: ${
+                ctx.args.parsedArguments.map { "$ { it.key } - ${it.value.result}" }.joinToString(" ")
+            }"
+        )
 
         var builder = ctx.sarano.defaultEmbed()
 
@@ -95,7 +99,8 @@ class HelpCommand(private val commandHandler: CommandHandler) : Command {
                 `[name]` - Optional argument
                 `<name>` - Required argument
                 
-            """.trimIndent())
+            """.trimIndent()
+            )
 
         return builder
 
@@ -127,8 +132,10 @@ class HelpCommand(private val commandHandler: CommandHandler) : Command {
 
         builder
             .setTitle("${ctx.sarano.client.shards.first().selfUser.name} - help")
-            .setDescription("Hi! My name is **${ctx.channel.jda.selfUser.name}**! To get more information about a module" +
-                    "or a command, use `${ctx.sarano.configuration.prefix}help [command _or_ module] :D`")
+            .setDescription(
+                "Hi! My name is **${ctx.channel.jda.selfUser.name}**! To get more information about a module" +
+                        "or a command, use `${ctx.sarano.configuration.prefix}help [command _or_ module] :D`"
+            )
 
         return builder
     }

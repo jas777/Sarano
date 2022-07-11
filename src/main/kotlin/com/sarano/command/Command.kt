@@ -5,8 +5,7 @@ import com.sarano.main.Sarano
 import net.dv8tion.jda.api.Permission
 import com.sarano.module.Module
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 
 interface Command {
 
@@ -14,24 +13,22 @@ interface Command {
     val description: String
 
     val aliases: Array<String> get() = emptyArray()
-
     val userPermissions: Array<Permission> get() = emptyArray()
-    val botPermissions: Array<Permission> get() = arrayOf(Permission.MESSAGE_WRITE)
-
+    val botPermissions: Array<Permission> get() = arrayOf(Permission.MESSAGE_SEND, Permission.MESSAGE_SEND_IN_THREADS)
     val arguments: Array<CommandArgument> get() = emptyArray()
-
     val child: Array<Command> get() = emptyArray()
 
     val ownerOnly: Boolean get() = false
+    @Deprecated("All commands are slash by default", ReplaceWith("true"))
+    val canSlash: Boolean get() = true
+    val ephemeral: Boolean get() = true
 
     val cooldown: Int get() = 3
-
-    val canSlash: Boolean get() = false
 
     fun execute(ctx: CommandContext)
 
     fun handleButtonClick(
-        event: ButtonClickEvent, buttonId: String, sender: User, originalUser: String,
+        event: ButtonInteractionEvent, buttonId: String, sender: User, originalUser: String,
         arguments: Array<String>
     ) {
         error("This command cannot handle button clicks")

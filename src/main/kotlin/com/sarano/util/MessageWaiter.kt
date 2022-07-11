@@ -2,7 +2,7 @@ package com.sarano.util
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.GenericEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -18,13 +18,13 @@ class MessageWaiter : ListenerAdapter() {
     private val threadpool = Executors.newSingleThreadScheduledExecutor()
 
     override fun onGenericEvent(event: GenericEvent) {
-        if (event is GuildMessageReceivedEvent) onGuildMessageReceived(event)
+        if (event is MessageReceivedEvent) onMessageReceived(event)
     }
 
     @Synchronized
     fun waitForGuildMessageReceived(
-        condition: (GuildMessageReceivedEvent) -> Boolean,
-        action: (GuildMessageReceivedEvent) -> Unit,
+        condition: (MessageReceivedEvent) -> Boolean,
+        action: (MessageReceivedEvent) -> Unit,
         timeout: Long, unit: TimeUnit?,
         timeoutAction: () -> Unit?
     ) {
@@ -36,18 +36,18 @@ class MessageWaiter : ListenerAdapter() {
     }
 
     @Synchronized
-    override fun onGuildMessageReceived(@Nonnull event: GuildMessageReceivedEvent) {
+    override fun onMessageReceived(@Nonnull event: MessageReceivedEvent) {
         set.removeAll(set.filter { i -> i.attempt(event) })
     }
 
 }
 
 private class WaitingEvent(
-    val condition: (GuildMessageReceivedEvent) -> Boolean,
-    val action: (GuildMessageReceivedEvent) -> Unit
+    val condition: (MessageReceivedEvent) -> Boolean,
+    val action: (MessageReceivedEvent) -> Unit
 ) {
 
-    fun attempt(event: GuildMessageReceivedEvent): Boolean {
+    fun attempt(event: MessageReceivedEvent): Boolean {
         if (condition(event)) {
             action(event)
             return true

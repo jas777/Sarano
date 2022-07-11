@@ -7,40 +7,43 @@ import com.sarano.main.Sarano
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.GuildChannel
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.events.ReadyEvent
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
+import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
 
 class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
-    val commands: MutableList<Command> = mutableListOf()
-
-    lateinit var slashRegistry: CommandListUpdateAction
+    private val commands: MutableList<Command> = mutableListOf()
+    private lateinit var slashRegistry: CommandListUpdateAction
 
     init {
         sarano.logger.info { "Command handler registered successfully" }
     }
 
-    override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
+    @Deprecated("Moving to slash-only system")
+    override fun onMessageReceived(event: MessageReceivedEvent) {
+        if (!event.isFromGuild) return
 
         val author: User = event.author
         val guild: Guild = event.guild
 
         val prefix: String = sarano.configuration.prefix
 
-        if (event.member == null) return
+        if (event.member == null || !event.message.contentDisplay.startsWith(prefix, ignoreCase = true)) return
 
-        if (!event.message.contentDisplay.startsWith(prefix, ignoreCase = true)) return
-
-        if (!event.guild.getMember(event.jda.selfUser)?.hasPermission(event.channel, Permission.MESSAGE_WRITE)!!)
+        if (!event.guild.getMember(event.jda.selfUser)
+                ?.hasPermission(event.channel as GuildChannel, Permission.MESSAGE_SEND)!!
+        )
             return
 
         val messageWithoutPrefix: List<String> = event.message.contentRaw.split(prefix)[1].split(" ")
@@ -50,7 +53,6 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
         var args = messageWithoutPrefix.subList(1, messageWithoutPrefix.size)
 
         getCommand(command, sarano.configuration.developers.contains(author.id)) {
-
             val childResult: Pair<Int, Command> = getChild(it, args)
 
             val finalCommand = childResult.second
@@ -60,11 +62,11 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
             var missingBotPermissions: Array<Permission> = finalCommand.botPermissions
 
             missingBotPermissions = missingBotPermissions.filter { perm ->
-                !event.guild.getMember(event.jda.selfUser)!!.getPermissions(event.channel).toTypedArray().contains(perm)
+                !event.guild.getMember(event.jda.selfUser)!!.getPermissions(event.channel as GuildChannel)
+                    .toTypedArray().contains(perm)
             }.toTypedArray()
 
             if (missingBotPermissions.isNotEmpty()) {
-
                 val builder = sarano.errorEmbed()
                     .setTitle("Missing permissions!")
                     .setDescription("I need **${
@@ -73,16 +75,15 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
                     }** permission(s) in order to execute this command!"
                     )
 
-                event.channel.sendMessage(builder.build()).queue()
+                event.channel.sendMessageEmbeds(builder.build()).queue()
 
                 return@getCommand
-
             }
 
             var missingUserPermissions: Array<Permission> = finalCommand.userPermissions
 
             missingUserPermissions = missingUserPermissions.filter { perm ->
-                !event.member!!.getPermissions(event.channel).toTypedArray().contains(perm)
+                !event.member!!.getPermissions(event.channel as GuildChannel).toTypedArray().contains(perm)
             }.toTypedArray()
 
             if (missingUserPermissions.isNotEmpty()) {
@@ -95,7 +96,7 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
                     }** permission(s) in order to run this command!"
                     )
 
-                event.channel.sendMessage(builder.build()).queue()
+                event.channel.sendMessageEmbeds(builder.build()).queue()
 
                 return@getCommand
 
@@ -112,10 +113,10 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
             var debug = false
 
-            if (sarano.debug && event.message.contentDisplay.endsWith("-d")) {
+            if (event.message.contentDisplay.endsWith("-d")) {
                 args = args.dropLast(1)
                 debug = true
-                event.channel.sendMessage(
+                event.channel.sendMessageEmbeds(
                     sarano.warnEmbed().setTitle("Running command in debug mode").build()
                 ).queue()
             }
@@ -133,39 +134,31 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
                         .filter { arg -> !arg.optional }
                         .joinToString("\n") { arg -> "`${arg.name}` - ${arg.description}" })
 
-                event.channel.sendMessage(builder.build()).queue()
+                event.channel.sendMessageEmbeds(builder.build()).queue()
 
                 return@getCommand
 
             }
 
             val context = CommandContext(
-                sarano, event.member!!, event.channel, event.message,
+                sarano, event.member!!, event.channel as TextChannel, event.message,
                 event.guild, arguments, false, null, debug
             )
 
             event.member?.let { finalCommand.execute(context) }
-
         }
-
     }
 
-    override fun onSlashCommand(event: SlashCommandEvent) {
-
+    override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
         try {
-
             getCommand(event.name, sarano.configuration.developers.contains(event.user.id)) {
 
                 if (!event.isFromGuild) return@getCommand
-
                 val arguments: HashMap<String, ParsedArgument<Any>> = hashMapOf()
 
                 for (option in event.options) {
-
                     val commandArgument = it.arguments.find { arg -> arg.name == option.name }
-
                     val result: Any = when (option.type) {
-
                         OptionType.STRING -> {
                             if (commandArgument?.length == null) {
                                 option.asString
@@ -173,31 +166,20 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
                                 option.asString.split(" ")
                             }
                         }
-
                         OptionType.INTEGER -> option.asLong
-
                         OptionType.BOOLEAN -> option.asBoolean
-
                         OptionType.USER -> option.asUser
-
                         OptionType.CHANNEL -> option.asGuildChannel
-
                         OptionType.ROLE -> option.asRole
-
                         OptionType.SUB_COMMAND -> TODO()
-
                         OptionType.SUB_COMMAND_GROUP -> TODO()
-
                         OptionType.UNKNOWN -> error("Unknown option type")
-
                         else -> error("Unknown option type")
-
                     }
 
                     commandArgument.let { arg ->
                         arguments.put(option.name, ParsedArgument(arg!!, result))
                     }
-
                 }
 
                 val context = CommandContext(
@@ -206,24 +188,19 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
                 )
 
                 it.execute(context)
-
             }
-
         } catch (error: Error) {
             event.reply(
-                MessageBuilder().setEmbed(
+                MessageBuilder().setEmbeds(
                     sarano.errorEmbed().setDescription("${error.message}\n\nPlease contact support")
                         .build()
                 ).build()
             ).queue()
         }
-
     }
 
-    override fun onButtonClick(event: ButtonClickEvent) {
-
+    override fun onButtonInteraction(event: ButtonInteractionEvent) {
         val id = event.componentId
-
         val splitId = id.split(":")
 
         if (splitId.last().endsWith(":")) splitId.last().dropLast(1)
@@ -236,37 +213,28 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
         getCommand(commandName, ownerOnly = true) {
             it.handleButtonClick(event, buttonName, event.user, originalUser, arguments.toTypedArray())
         }
-
     }
 
     override fun onReady(event: ReadyEvent) {
-        slashRegistry = sarano.client.shards.first().updateCommands()
         registerSlash()
     }
 
     fun getCommand(name: String, ownerOnly: Boolean = false, commandConsumer: (Command) -> Unit): Command? {
-
         val command: Command? = commands.find { it.name.equals(name, ignoreCase = true) || it.aliases.contains(name) }
-
         command?.let {
             commandConsumer(command)
             return command
         }
-
         return null
-
     }
 
     fun getCommand(name: String, ownerOnly: Boolean = false): Command? = getCommand(name, ownerOnly) {}
 
     fun getChild(command: Command, args: List<String>): Pair<Int, Command> {
-
         return getChild(command, args, 0)
-
     }
 
     fun getChild(command: Command, args: List<String>, index: Int): Pair<Int, Command> {
-
         if (args.isEmpty()) return Pair(index, command)
 
         if (command.child.isNotEmpty() && command.child.map(Command::name).contains(args[0].toLowerCase())) {
@@ -274,26 +242,22 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
         }
 
         return Pair(index, command)
-
     }
 
     fun registerCommands(vararg commands: Command) {
-
         commands.forEach {
             sarano.logger.info { "${it.name} registered" }
         }
-
         this.commands.addAll(commands)
     }
 
     private fun registerSlash() {
-
+        slashRegistry = sarano.client.shards.first().updateCommands()
         val commandsToAdd = mutableListOf<CommandData>()
 
         for (command in commands.filter { it.canSlash }) {
-
-            val slashCommand = CommandData(command.name, command.description)
-
+            val slashCommand = Commands.slash(command.name, command.description)
+            sarano.logger.debug { "Registering slash ${command.name}" }
             val options: MutableList<OptionData> = mutableListOf()
 
             for (argument in command.arguments.sortedBy { it.optional }) {
@@ -304,7 +268,7 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
                                 when (choice.value) {
                                     is Long -> {
-                                        addChoice(choice.key, (choice.value as Long).toInt())
+                                        addChoice(choice.key, choice.value as Long)
                                     }
                                     is String -> {
                                         addChoice(choice.key, choice.value as String)
@@ -321,23 +285,13 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
             }
 
             slashCommand.addOptions(options)
-
-            slashRegistry.addCommands(
-                slashCommand
-            )
-
+            slashCommand.isGuildOnly = true
+            slashRegistry.addCommands(slashCommand)
             commandsToAdd.add(slashCommand)
         }
 
-//        for (guild in sarano.client.guildCache) {
-//            guild.updateCommands().queue()
-//            guild.updateCommands().addCommands(commandsToAdd).queue()
-//        }
-
-        slashRegistry.queue()
-
-        sarano.logger.debug { "Sent slash commands update" }
-
+        slashRegistry.queue() {
+            sarano.logger.debug { "Sent slash commands update ${it.joinToString(", ") { it.name }}" }
+        }
     }
-
 }

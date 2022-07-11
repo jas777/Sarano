@@ -4,9 +4,9 @@ import com.sarano.command.argument.CommandArgument
 import com.sarano.util.input
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.components.Button
+import net.dv8tion.jda.api.interactions.components.buttons.Button
 
 class TestCommand : Command {
 
@@ -54,17 +54,16 @@ class TestCommand : Command {
                     Button.link("https://en.wikipedia.org/wiki/Schr%C3%B6dinger%27s_cat", "Or does it?")
                 ).queue()
         }
-
     }
 
     override fun handleButtonClick(
-        event: ButtonClickEvent,
+        event: ButtonInteractionEvent,
         buttonId: String,
         sender: User,
         originalUser: String,
         arguments: Array<String>
     ) {
-        if (sender.id != originalUser) return;
+        if (sender.id != originalUser) return
         when (buttonId) {
             "prm" -> event.reply("Primary clicked!").queue()
             "scd" -> event.reply("Secondary clicked!").queue()
