@@ -31,7 +31,6 @@ class Arguments {
             if (indexedArgument >= args.size) break
 
             val commandArgument: CommandArgument = command.arguments[index]
-
             val parsedResult: Any?
 
             if (commandArgument.length == null) {
@@ -40,14 +39,12 @@ class Arguments {
                     translateOption(commandArgument.type).parseMethod(jda, args[indexedArgument])
 
                 if (parsedResult != null) {
-
                     if (commandArgument.choices.size > 0 && commandArgument.choices.none { it.value == parsedResult }) {
                         break
                     }
 
                     indexedArgument++
                     parsedArguments[commandArgument.name] = ParsedArgument(commandArgument, parsedResult)
-
                 } else if (commandArgument.optional) {
                     continue
                 }
@@ -57,7 +54,6 @@ class Arguments {
                 if (commandArgument.type != OptionType.STRING) error("Length only applicable to string!")
 
                 var matchingArguments = 0
-
                 val resultList: MutableList<Any> = ArrayList()
 
                 for (argIndex in 0 until (if (commandArgument.length!! == -1) args.size - indexedArgument else
@@ -74,21 +70,17 @@ class Arguments {
                     }
 
                     if (result == null) break
-
                 }
 
                 if (commandArgument.choices.size > 0 &&
                     commandArgument.choices.none { it.value == resultList.joinToString(" ") }
-                ) {
-                    break
-                }
+                ) break
+
 
                 indexedArgument += matchingArguments
                 parsedArguments[commandArgument.name] = ParsedArgument(commandArgument, resultList)
-
             }
         }
-        // }
     }
 
     constructor(parsedArguments: HashMap<String, ParsedArgument<Any>>) {
@@ -120,11 +112,9 @@ class Arguments {
     fun long(argument: String): Long = this[argument] as Long
 
     fun boolean(argument: String): Boolean = this[argument] as Boolean
-
 }
 
 enum class ArgumentMethods constructor(val parseMethod: (jda: JDA, rawArgument: String) -> Any?) {
-
     // UNKNOWN(-1), SUB_COMMAND(1), SUB_COMMAND_GROUP(2), STRING(3, true), INTEGER(4, false), BOOLEAN(5), USER(6), CHANNEL(7), ROLE(8);
 
     STRING(
@@ -153,5 +143,4 @@ enum class ArgumentMethods constructor(val parseMethod: (jda: JDA, rawArgument: 
             ).first())
         }
     )
-
 }
