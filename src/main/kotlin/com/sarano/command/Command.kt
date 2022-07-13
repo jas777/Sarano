@@ -5,7 +5,9 @@ import com.sarano.main.Sarano
 import net.dv8tion.jda.api.Permission
 import com.sarano.module.Module
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent
 
 interface Command {
 
@@ -19,8 +21,10 @@ interface Command {
     val child: Array<Command> get() = emptyArray()
 
     val ownerOnly: Boolean get() = false
+
     @Deprecated("All commands are slash by default", ReplaceWith("true"))
-    val canSlash: Boolean get() = true
+    val canSlash: Boolean
+        get() = true
     val ephemeral: Boolean get() = true
 
     val cooldown: Int get() = 3
@@ -32,6 +36,19 @@ interface Command {
         arguments: Array<String>
     ) {
         error("This command cannot handle button clicks")
+    }
+
+    fun handleModalInteraction(
+        event: ModalInteractionEvent, modalId: String, sender: User, arguments: Array<String>
+    ) {
+        error("This command cannot handle modal interactions")
+    }
+
+    fun handleSelectMenuInteraction(
+        event: SelectMenuInteractionEvent, selectId: String, sender: User, originalUser: String,
+        arguments: Array<String>
+    ) {
+        error("This command cannot handle modal interactions")
     }
 
 }

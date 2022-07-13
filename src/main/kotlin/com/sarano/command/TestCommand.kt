@@ -4,9 +4,18 @@ import com.sarano.command.argument.CommandArgument
 import com.sarano.util.input
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
+import net.dv8tion.jda.api.interactions.components.ActionRow
+import net.dv8tion.jda.api.interactions.components.Modal
 import net.dv8tion.jda.api.interactions.components.buttons.Button
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption
+import net.dv8tion.jda.api.interactions.components.text.TextInput
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle
 
 class TestCommand : Command {
 
@@ -49,10 +58,11 @@ class TestCommand : Command {
                     Button.primary(ctx.generateButtonId(name, "prm"), "Primary"),
                     Button.secondary(ctx.generateButtonId(name, "scd"), "Secondary")
                 ).addActionRow(
-                    Button.success(ctx.generateButtonId(name, "scs"), "It does!"),
                     Button.danger(ctx.generateButtonId(name, "dgr"), "It doesn't"),
                     Button.link("https://en.wikipedia.org/wiki/Schr%C3%B6dinger%27s_cat", "Or does it?")
-                ).queue()
+                ).addActionRow(SelectMenu.create(ctx.generateButtonId(name, "select", "1", "2")).addOptions(
+                    ctx.guild.roles.map { SelectOption.of(it.name, it.id) }
+                ).build()).queue()
         }
     }
 
@@ -64,12 +74,33 @@ class TestCommand : Command {
         arguments: Array<String>
     ) {
         if (sender.id != originalUser) return
+        if (!event.isFromGuild) return
+
         when (buttonId) {
             "prm" -> event.reply("Primary clicked!").queue()
             "scd" -> event.reply("Secondary clicked!").queue()
-            "scs" -> event.reply("Aye!").queue()
             "dgr" -> event.reply("Aw :(!").queue()
         }
+    }
+
+    override fun handleModalInteraction(
+        event: ModalInteractionEvent,
+        modalId: String,
+        sender: User,
+        arguments: Array<String>
+    ) {
+        println("$modalId\n$sender\n$arguments")
+    }
+
+    override fun handleSelectMenuInteraction(
+        event: SelectMenuInteractionEvent,
+        selectId: String,
+        sender: User,
+        originalUser: String,
+        arguments: Array<String>
+    ) {
+        println(event.values)
+        event.reply("boop").setEphemeral(true).queue()
     }
 
 }

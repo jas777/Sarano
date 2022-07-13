@@ -12,8 +12,10 @@ import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.events.ReadyEvent
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
@@ -212,6 +214,37 @@ class CommandHandler(val sarano: Sarano) : ListenerAdapter() {
 
         getCommand(commandName, ownerOnly = true) {
             it.handleButtonClick(event, buttonName, event.user, originalUser, arguments.toTypedArray())
+        }
+    }
+
+    override fun onModalInteraction(event: ModalInteractionEvent) {
+        val id = event.modalId
+        val splitId = id.split(":")
+
+        if (splitId.last().endsWith(":")) splitId.last().dropLast(1)
+
+        val commandName = splitId[0]
+        val modalName = splitId[1]
+        val arguments = splitId.drop(2)
+
+        getCommand(commandName, ownerOnly = true) {
+            it.handleModalInteraction(event, modalName, event.user, arguments.toTypedArray())
+        }
+    }
+
+    override fun onSelectMenuInteraction(event: SelectMenuInteractionEvent) {
+        val id = event.componentId
+        val splitId = id.split(":")
+
+        if (splitId.last().endsWith(":")) splitId.last().dropLast(1)
+
+        val commandName = splitId[0]
+        val selectName = splitId[1]
+        val originalUser = splitId[2]
+        val arguments = splitId.drop(3)
+
+        getCommand(commandName, ownerOnly = true) {
+            it.handleSelectMenuInteraction(event, selectName, event.user, originalUser, arguments.toTypedArray())
         }
     }
 

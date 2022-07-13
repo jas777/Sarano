@@ -47,3 +47,6 @@ data class CommandContext(
         }
     }
 }
+
+fun generateModalId(commandName: String, modalName: String, vararg arguments: String): String
+        = "$commandName:$modalName:${arguments.joinToString(":")}"
