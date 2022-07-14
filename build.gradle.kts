@@ -59,9 +59,9 @@ dependencies {
         exclude(module = "opus-java")
     }
 
-    api("io.github.microutils:kotlin-logging-jvm:2.0.6")
-    api("ch.qos.logback:logback-classic:1.3.0-alpha5")
-    api("org.slf4j:slf4j-api:2.0.0-alpha1")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.0.6")
+    implementation("ch.qos.logback:logback-classic:1.3.0-alpha5")
+    implementation("org.slf4j:slf4j-api:2.0.0-alpha1")
 
     api("org.jetbrains.exposed:exposed-core:$exposedVersion")
     api("org.jetbrains.exposed:exposed-dao:$exposedVersion")
@@ -85,15 +85,15 @@ tasks.test {
 }
 
 tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "14"
 }
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "14"
 }
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "14"
 }
 
 java {
