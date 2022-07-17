@@ -54,6 +54,7 @@ fun main(args: Array<String>) {
 
 class Sarano constructor(config: String, val debug: Boolean) {
 
+    var rawConfiguration: Toml
     var configuration: Configuration
     val logger: KLogger = LoggerFactory.getLogger("main").toKLogger()
 
@@ -82,7 +83,8 @@ class Sarano constructor(config: String, val debug: Boolean) {
                 exitProcess(1)
             }
         } else {
-            configuration = Toml.parse(configFile).getAs("bot", Configuration::class.java)
+            rawConfiguration = Toml.parse(configFile)
+            configuration = rawConfiguration.getAs("bot", Configuration::class.java)
             logger.info { "Configuration loaded successfully!" }
         }
     }
